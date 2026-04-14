@@ -684,7 +684,7 @@
       <p>Asigná tus transferencias a Balanz a cada activo y seguí tu portfolio</p>
     </div>
  
-    <div class="kpi-grid" id="inv-kpis" style="margin-bottom:24px"></div>
+    <div class="kpi-grid" id="inv-kpis" style="margin-bottom:24px;justify-items:center;max-width:900px;margin-left:auto;margin-right:auto"></div>
  
     <!-- Asignar transferencia a activo -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -727,7 +727,7 @@
           <input type="number" id="i-monto" placeholder="ej: 500000" oninput="calcCantidadCosto()">
         </div>
         <div class="form-group">
-          <label>Precio costo (calculado)</label>
+          <label>Precio costo (por unidad)</label>
           <input type="number" id="i-precio-manual" placeholder="ej: 5000">
         </div>
         <div class="form-group">
@@ -813,90 +813,36 @@
  
 <script>
  
-const SUPA_URL = 'https://eszmxvkzywbnnebbwstc.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';
-const APP_PASS = 'Ines2024';
-const FIXED_ID = '00000000-0000-0000-0000-000000000001';
- 
-async function supaFetch(table, method='GET', body=null, filter='') {
-  const url = SUPA_URL + '/rest/v1/' + table + (filter ? '?' + filter : '');
-  const opts = {
-    method,
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'resolution=merge-duplicates,return=minimal' : ''
-    }
-  };
-  if (body !== null) opts.body = JSON.stringify(body);
-  const r = await fetch(url, opts);
-  if (method === 'GET') { try { return await r.json(); } catch(e) { return []; } }
+const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
+async function supaFetch(table,method='GET',body=null,filter=''){
+  const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');
+  const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};
+  if(body!==null)opts.body=JSON.stringify(body);
+  const r=await fetch(url,opts);
+  if(method==='GET'){try{return await r.json();}catch(e){return[];}}
   return r.ok;
 }
- 
-function checkAuth() {
-  if (!sessionStorage.getItem('mf_auth')) showLoginScreen();
+function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
+function showLoginScreen(){
+  document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLogin()"><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;
 }
- 
-function showLoginScreen() {
-  document.body.innerHTML = `
-    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace">
-      <div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center">
-        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div>
-        <p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p>
-        <input id="lp" type="password" placeholder="Contraseña" autofocus
-          style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px"
-          onkeydown="if(event.key==='Enter')doLogin()">
-        <div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div>
-        <button onclick="doLogin()"
-          style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">
-          Entrar
-        </button>
-      </div>
-    </div>`;
+function doLogin(){const v=document.getElementById('lp')?.value;if(v===APP_PASS){sessionStorage.setItem('mf_auth','1');location.reload();}else{const e=document.getElementById('le');if(e)e.textContent='Contraseña incorrecta';}}
+async function saveToCloud(){
+  try{await Promise.all([supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})]);}catch(e){console.warn('Cloud save:',e);}
 }
- 
-function doLogin() {
-  const v = document.getElementById('lp')?.value;
-  if (v === APP_PASS) { sessionStorage.setItem('mf_auth','1'); location.reload(); }
-  else { const e = document.getElementById('le'); if(e) e.textContent='Contraseña incorrecta'; }
-}
- 
-async function saveToCloud() {
-  try {
-    await Promise.all([
-      supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),
-      supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),
-      supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})
-    ]);
-  } catch(e) { console.warn('Cloud save error:',e); }
-}
- 
-async function loadFromCloud() {
-  try {
-    const f = 'id=eq.'+FIXED_ID;
-    const [mr,ir,dr] = await Promise.all([
-      supaFetch('movimientos','GET',null,f),
-      supaFetch('inversiones','GET',null,f),
-      supaFetch('dolares','GET',null,f)
-    ]);
-    let changed = false;
-    if (mr?.[0]?.data) { allMovs=mr[0].data; allMovs.forEach((m,i)=>{if(!m._id)m._id=Date.now()+i+Math.random();}); localStorage.setItem('misfinanzas_movimientos',JSON.stringify(allMovs)); changed=true; }
-    if (ir?.[0]?.data) { allInversiones=ir[0].data; localStorage.setItem('misfinanzas_inversiones',JSON.stringify(allInversiones)); changed=true; }
-    if (dr?.[0]?.data) { allDolares=dr[0].data; localStorage.setItem('misfinanzas_dolares',JSON.stringify(allDolares)); changed=true; }
-    if (changed) { updateCount(); updateStorageInfo(); }
+async function loadFromCloud(){
+  try{
+    const f='id=eq.'+FIXED_ID;
+    const [mr,ir,dr]=await Promise.all([supaFetch('movimientos','GET',null,f),supaFetch('inversiones','GET',null,f),supaFetch('dolares','GET',null,f)]);
+    let changed=false;
+    if(mr?.[0]?.data){allMovs=mr[0].data;allMovs.forEach((m,i)=>{if(!m._id)m._id=Date.now()+i+Math.random();});localStorage.setItem('misfinanzas_movimientos',JSON.stringify(allMovs));changed=true;}
+    if(ir?.[0]?.data){allInversiones=ir[0].data;localStorage.setItem('misfinanzas_inversiones',JSON.stringify(allInversiones));changed=true;}
+    if(dr?.[0]?.data){allDolares=dr[0].data;localStorage.setItem('misfinanzas_dolares',JSON.stringify(allDolares));changed=true;}
+    if(changed){updateCount();updateStorageInfo();}
     return changed;
-  } catch(e) { console.warn('Cloud load:',e); return false; }
+  }catch(e){console.warn('Cloud load:',e);return false;}
 }
- 
-async function syncNow() {
-  toast('Sincronizando...','success');
-  await loadFromCloud();
-  buildFilters(); renderTable();
-  toast('✓ Sincronizado','success');
-}
- 
+async function syncNow(){toast('Sincronizando...','success');await loadFromCloud();buildFilters();renderTable();toast('✓ Sincronizado','success');}
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
  
 // ========== STATE ==========
@@ -1517,12 +1463,11 @@ function buildCharts() {
   const rendimientos = data.filter(m => m.categoria === 'Rendimiento Mercado').reduce((s,m) => s + m.monto, 0);
   const balance = ingresos + rendimientos - gastos; // ingresos + rendimientos - gastos operativos
  
-  const dataHasta = selMonth==='all' ? allMovs : allMovs.filter(m=>m.fecha.slice(0,7)<=selMonth);
+  const dataHasta=selMonth==='all'?allMovs:allMovs.filter(m=>m.fecha.slice(0,7)<=selMonth);
   const ingTot=dataHasta.filter(m=>m.categoria==='Ingreso').reduce((s,m)=>s+m.monto,0);
   const gasTot=dataHasta.filter(m=>m.monto<0&&m.categoria!=='Inversiones'&&m.categoria!=='Compra Dólares').reduce((s,m)=>s+Math.abs(m.monto),0);
   const rendTot=dataHasta.filter(m=>m.categoria==='Rendimiento Mercado').reduce((s,m)=>s+m.monto,0);
   const saldoConsolidado=ingTot+rendTot-gasTot;
- 
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi green"><label>Ingresos</label><div class="value">${fmtK(ingresos)}</div><div class="sub">transferencias recibidas</div></div>
     <div class="kpi yellow" style="border-top-color:var(--accent3)"><label>Rend. Mercado Pago</label><div class="value" style="color:var(--accent3)">${fmtK(rendimientos)}</div><div class="sub">intereses acumulados</div></div>
@@ -2066,33 +2011,39 @@ function toggleCustomActivo() {
 }
  
 function calcCantidadCosto() {
-  // Formulario manual: monto + precio actual → precio costo y notas con cantidad
-  const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
+  const monto = parseFloat(document.getElementById('i-monto')?.value);
   const precioActual = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
-  if (monto > 0 && precioActual > 0) {
+  const costEl = document.getElementById('i-precio-manual');
+  const notasEl = document.getElementById('i-notas');
+  // Si el monto está vacío o 0, limpiar todo
+  if (!monto || monto <= 0) {
+    if (costEl) costEl.value = '';
+    if (notasEl) notasEl.value = '';
+    return;
+  }
+  if (precioActual > 0) {
     const cantidad = Math.floor(monto / precioActual);
-    const precioCosto = precioActual; // precio costo = precio actual al momento de compra
     if (cantidad > 0) {
-      const costEl = document.getElementById('i-precio-manual');
-      const notasEl = document.getElementById('i-notas');
-      if (costEl) costEl.value = precioCosto;
-      if (notasEl && !notasEl.value) notasEl.value = cantidad + ' acciones';
-      else if (notasEl) notasEl.value = cantidad + ' acciones';
+      if (costEl) costEl.value = precioActual;
+      if (notasEl) notasEl.value = cantidad + ' acciones';
     }
   }
 }
  
 function calcCantidadCostoAssign(idx) {
-  // Modal de asignación: monto + precio actual → precio costo y notas con cantidad
-  const monto = parseFloat(document.getElementById('assign-monto-'+idx)?.value) || 0;
+  const monto = parseFloat(document.getElementById('assign-monto-'+idx)?.value);
   const precioActual = parseFloat(document.getElementById('assign-precio-actual-'+idx)?.value) || 0;
-  if (monto > 0 && precioActual > 0) {
+  const costEl = document.getElementById('assign-precio-'+idx);
+  const notasEl = document.getElementById('assign-notas-'+idx);
+  if (!monto || monto <= 0) {
+    if (costEl) costEl.value = '';
+    if (notasEl) notasEl.value = '';
+    return;
+  }
+  if (precioActual > 0) {
     const cantidad = Math.floor(monto / precioActual);
-    const precioCosto = precioActual;
     if (cantidad > 0) {
-      const costEl = document.getElementById('assign-precio-'+idx);
-      const notasEl = document.getElementById('assign-notas-'+idx);
-      if (costEl) costEl.value = precioCosto;
+      if (costEl) costEl.value = precioActual;
       if (notasEl) notasEl.value = cantidad + ' acciones';
     }
   }
@@ -2113,8 +2064,8 @@ async function autoFetchPrice() {
   if (price) {
     priceEl.value = price;
     priceEl.placeholder = `${ticker} actualizado`;
-    toast(`✓ Precio ${ticker}: $${price.toLocaleString('es-AR')} ARS`, 'success');
-    calcCantidadCosto(); // auto-calcular con el precio traído
+    toast(`✓ ${ticker}: $${price.toLocaleString('es-AR')} ARS`, 'success');
+    calcCantidadCosto();
   } else {
     priceEl.placeholder = `${ticker} — mercado cerrado o sin datos`;
     toast(`No se pudo obtener ${ticker}. Ingresá el precio manualmente.`, 'error');
@@ -2134,7 +2085,7 @@ async function fetchAndFillPrice(idx) {
   if (price) {
     el.value = price;
     toast(`✓ ${ticker}: $${price.toLocaleString('es-AR')} ARS`, 'success');
-    calcCantidadCostoAssign(idx); // auto-calcular cantidad y costo
+    calcCantidadCostoAssign(idx);
   } else {
     el.placeholder = `${ticker} — mercado cerrado`;
     toast(`Mercado cerrado o sin acceso para ${ticker}`, 'error');
@@ -2842,9 +2793,7 @@ document.getElementById('m-fecha').valueAsDate = new Date();
 loadFromStorage();
 loadDolaresFromStorage();
 loadInversionesFromStorage();
-loadFromCloud().then(changed => {
-  if (changed) toast('✓ Sincronizado desde la nube', 'success');
-});
+loadFromCloud().then(changed => { if(changed) toast('✓ Sincronizado desde la nube','success'); });
 // Set default dates
 const iFechaEl = document.getElementById('i-fecha');
 if (iFechaEl) iFechaEl.valueAsDate = new Date();
