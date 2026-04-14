@@ -684,7 +684,7 @@
       <p>Asigná tus transferencias a Balanz a cada activo y seguí tu portfolio</p>
     </div>
  
-    <div class="kpi-grid" id="inv-kpis" style="margin-bottom:24px;justify-items:center;max-width:900px;margin-left:auto;margin-right:auto"></div>
+    <div id="inv-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
  
     <!-- Asignar transferencia a activo -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -758,7 +758,7 @@
     </div>
  
     <!-- KPIs dólares -->
-    <div class="kpi-grid" id="dolar-kpis" style="margin-bottom:24px"></div>
+    <div id="dolar-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
  
     <!-- Formulario -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -814,34 +814,12 @@
 <script>
  
 const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
-async function supaFetch(table,method='GET',body=null,filter=''){
-  const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');
-  const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};
-  if(body!==null)opts.body=JSON.stringify(body);
-  const r=await fetch(url,opts);
-  if(method==='GET'){try{return await r.json();}catch(e){return[];}}
-  return r.ok;
-}
+async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
-function showLoginScreen(){
-  document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLogin()"><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;
-}
+function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLogin()"><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
 function doLogin(){const v=document.getElementById('lp')?.value;if(v===APP_PASS){sessionStorage.setItem('mf_auth','1');location.reload();}else{const e=document.getElementById('le');if(e)e.textContent='Contraseña incorrecta';}}
-async function saveToCloud(){
-  try{await Promise.all([supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})]);}catch(e){console.warn('Cloud save:',e);}
-}
-async function loadFromCloud(){
-  try{
-    const f='id=eq.'+FIXED_ID;
-    const [mr,ir,dr]=await Promise.all([supaFetch('movimientos','GET',null,f),supaFetch('inversiones','GET',null,f),supaFetch('dolares','GET',null,f)]);
-    let changed=false;
-    if(mr?.[0]?.data){allMovs=mr[0].data;allMovs.forEach((m,i)=>{if(!m._id)m._id=Date.now()+i+Math.random();});localStorage.setItem('misfinanzas_movimientos',JSON.stringify(allMovs));changed=true;}
-    if(ir?.[0]?.data){allInversiones=ir[0].data;localStorage.setItem('misfinanzas_inversiones',JSON.stringify(allInversiones));changed=true;}
-    if(dr?.[0]?.data){allDolares=dr[0].data;localStorage.setItem('misfinanzas_dolares',JSON.stringify(allDolares));changed=true;}
-    if(changed){updateCount();updateStorageInfo();}
-    return changed;
-  }catch(e){console.warn('Cloud load:',e);return false;}
-}
+async function saveToCloud(){try{await Promise.all([supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})]);}catch(e){console.warn('Cloud save:',e);}}
+async function loadFromCloud(){try{const f='id=eq.'+FIXED_ID;const [mr,ir,dr]=await Promise.all([supaFetch('movimientos','GET',null,f),supaFetch('inversiones','GET',null,f),supaFetch('dolares','GET',null,f)]);let changed=false;if(mr?.[0]?.data){allMovs=mr[0].data;allMovs.forEach((m,i)=>{if(!m._id)m._id=Date.now()+i+Math.random();});localStorage.setItem('misfinanzas_movimientos',JSON.stringify(allMovs));changed=true;}if(ir?.[0]?.data){allInversiones=ir[0].data;localStorage.setItem('misfinanzas_inversiones',JSON.stringify(allInversiones));changed=true;}if(dr?.[0]?.data){allDolares=dr[0].data;localStorage.setItem('misfinanzas_dolares',JSON.stringify(allDolares));changed=true;}if(changed){updateCount();updateStorageInfo();}return changed;}catch(e){console.warn('Cloud load:',e);return false;}}
 async function syncNow(){toast('Sincronizando...','success');await loadFromCloud();buildFilters();renderTable();toast('✓ Sincronizado','success');}
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
  
@@ -2015,40 +1993,23 @@ function calcCantidadCosto() {
   const precioActual = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
   const costEl = document.getElementById('i-precio-manual');
   const notasEl = document.getElementById('i-notas');
-  // Si el monto está vacío o 0, limpiar todo
-  if (!monto || monto <= 0) {
-    if (costEl) costEl.value = '';
-    if (notasEl) notasEl.value = '';
-    return;
-  }
+  if (!monto || monto <= 0) { if(costEl) costEl.value=''; if(notasEl) notasEl.value=''; return; }
   if (precioActual > 0) {
     const cantidad = Math.floor(monto / precioActual);
-    if (cantidad > 0) {
-      if (costEl) costEl.value = precioActual;
-      if (notasEl) notasEl.value = cantidad + ' acciones';
-    }
+    if (cantidad > 0) { if(costEl) costEl.value=precioActual; if(notasEl) notasEl.value=cantidad+' acciones'; }
   }
 }
- 
 function calcCantidadCostoAssign(idx) {
   const monto = parseFloat(document.getElementById('assign-monto-'+idx)?.value);
   const precioActual = parseFloat(document.getElementById('assign-precio-actual-'+idx)?.value) || 0;
   const costEl = document.getElementById('assign-precio-'+idx);
   const notasEl = document.getElementById('assign-notas-'+idx);
-  if (!monto || monto <= 0) {
-    if (costEl) costEl.value = '';
-    if (notasEl) notasEl.value = '';
-    return;
-  }
+  if (!monto || monto <= 0) { if(costEl) costEl.value=''; if(notasEl) notasEl.value=''; return; }
   if (precioActual > 0) {
     const cantidad = Math.floor(monto / precioActual);
-    if (cantidad > 0) {
-      if (costEl) costEl.value = precioActual;
-      if (notasEl) notasEl.value = cantidad + ' acciones';
-    }
+    if (cantidad > 0) { if(costEl) costEl.value=precioActual; if(notasEl) notasEl.value=cantidad+' acciones'; }
   }
 }
- 
 async function autoFetchPrice() {
   const sel = document.getElementById('i-activo');
   if (!sel) return;
@@ -2068,7 +2029,7 @@ async function autoFetchPrice() {
     calcCantidadCosto();
   } else {
     priceEl.placeholder = `${ticker} — mercado cerrado o sin datos`;
-    toast(`No se pudo obtener ${ticker}. Ingresá el precio manualmente.`, 'error');
+    toast(`No se pudo obtener ${ticker}. Ingresá manualmente.`, 'error');
   }
 }
  
