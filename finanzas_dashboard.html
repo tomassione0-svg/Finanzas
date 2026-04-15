@@ -871,35 +871,27 @@ async function parsePDF(file) {
   try {
     const ab = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-    let fullText = '';
+ 
+    // Collect all items from all pages with their coordinates
+    const allItems = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      // Sort items by Y position (top-to-bottom) then X (left-to-right)
-      // This ensures multi-line descriptions like "SIONE\nTOMAS AGUSTIN" get joined properly
-      const items = content.items.sort((a, b) => {
-        const yDiff = Math.round(b.transform[5]) - Math.round(a.transform[5]);
-        if (Math.abs(yDiff) < 3) return a.transform[4] - b.transform[4]; // same line: left to right
-        return -yDiff; // different lines: top to bottom
+      const vp = page.getViewport({ scale: 1 });
+      content.items.forEach(item => {
+        const str = item.str.trim();
+        if (!str) return;
+        allItems.push({
+          str,
+          x: Math.round(item.transform[4]),
+          y: Math.round(item.transform[5]),
+          page: i,
+          h: Math.abs(item.transform[3]) // font size / height
+        });
       });
-      // Group into lines by Y coordinate
-      const lines = [];
-      let lastY = null;
-      let currentLine = [];
-      items.forEach(item => {
-        const y = Math.round(item.transform[5]);
-        if (lastY === null || Math.abs(y - lastY) > 3) {
-          if (currentLine.length) lines.push(currentLine.join(' '));
-          currentLine = [item.str.trim()];
-          lastY = y;
-        } else {
-          currentLine.push(item.str.trim());
-        }
-      });
-      if (currentLine.length) lines.push(currentLine.join(' '));
-      fullText += lines.join(' ') + '\n';
     }
-    const parsed = parseMP(fullText);
+ 
+    const parsed = parseMP(allItems);
     if (parsed.length === 0) {
       toast('No se encontraron movimientos en el PDF. Intentá con otro archivo.', 'error');
     } else {
@@ -929,81 +921,127 @@ function movKey(m) {
   return `${m.fecha}|${m.monto}|${m.descripcion.slice(0,50).toLowerCase().trim()}`;
 }
  
-function parseMP(text) {
-  // Parser robusto: busca patrón completo fecha + desc + ID + $monto + $saldo
-  // Maneja montos negativos con espacio: "$ -30.000,00"
-  // Maneja descripciones multilinea (nombres de personas)
+function parseMP(items) {
+  // Parser basado en coordenadas XY — extrae tabla del PDF de Mercado Pago
+  // Columnas del PDF: Fecha | Descripcion | ID operacion | Valor | Saldo
   const movs = [];
+  if (!items || !items.length) return movs;
  
-  // Regex principal: captura cada movimiento completo
-  // fecha(DD-MM-YYYY) + descripcion(cualquier texto) + ID(10+dig) + $±monto + $saldo
-  const lineRx = /(\d{2}-\d{2}-\d{4})\s+([\s\S]*?)\s+(\d{10,})\s+\$\s*(-?)\s*([\d.]+,\d{2})\s+\$\s*-?\s*[\d.]+,[\d]{2}/g;
+  // Agrupar items por Y con tolerancia de 4px (items en la misma linea)
+  const sorted = [...items].sort((a, b) => {
+    if (Math.abs(b.y - a.y) > 4) return b.y - a.y;
+    return a.x - b.x;
+  });
  
-  let m;
-  while ((m = lineRx.exec(text)) !== null) {
-    const fechaRaw = m[1];
-    let desc = m[2].replace(/\s+/g, ' ').trim();
-    const sign = m[4] === '-' ? -1 : 1;
-    const montoRaw = m[5].replace(/\./g, '').replace(',', '.');
-    const monto = sign * parseFloat(montoRaw);
+  const rows = [];
+  let cur = null;
+  for (const item of sorted) {
+    if (!cur || Math.abs(item.y - cur.y) > 4) {
+      cur = { y: item.y, items: [] };
+      rows.push(cur);
+    }
+    cur.items.push(item);
+  }
  
-    if (isNaN(monto) || monto === 0) continue;
+  // Detectar x de las fechas para anclar columnas
+  const dateFmt = /^\d{2}-\d{2}-\d{4}$/;
+  const dateXs = items.filter(it => dateFmt.test(it.str)).map(it => it.x);
+  if (!dateXs.length) return movs; // no es PDF de MP
+  const avgDateX = dateXs.reduce((s,x) => s+x, 0) / dateXs.length;
  
-    // Limpiar descripción: quitar restos de $ y números sueltos
-    desc = desc.replace(/\$[\s\d.,]*/g, '').replace(/\s+/g, ' ').trim();
-    if (!desc || desc.length < 2) desc = 'Movimiento';
+  // Detectar x de IDs de operacion (numeros de 12-13 digitos)
+  const idFmt = /^\d{12,14}$/;
+  const idXs = items.filter(it => idFmt.test(it.str)).map(it => it.x);
+  const avgIdX = idXs.length ? idXs.reduce((s,x)=>s+x,0)/idXs.length : avgDateX + 200;
  
-    // Convertir fecha DD-MM-YYYY → YYYY-MM-DD
-    const [d, mo, y] = fechaRaw.split('-');
-    const fecha = `${y}-${mo}-${d}`;
+  // Detectar x de montos ($N.NNN,NN)
+  const montoFmt = /^\$?\s*-?[\d.]+,\d{2}$/;
+  const montoXs = items
+    .filter(it => montoFmt.test(it.str.replace(/\s/g,'')))
+    .map(it => it.x)
+    .sort((a,b) => a-b);
  
+  // Clusters de X para montos: el penultimo cluster = Valor, ultimo = Saldo
+  const clusters = [];
+  let cl = null;
+  for (const x of montoXs) {
+    if (!cl || x - cl.max > 30) { cl = {min:x,max:x}; clusters.push(cl); }
+    else cl.max = x;
+  }
+  const valorXMin = clusters.length >= 2 ? clusters[clusters.length-2].min - 5 : avgIdX + 80;
+  const saldoXMin = clusters.length >= 1 ? clusters[clusters.length-1].min - 5 : valorXMin + 80;
+ 
+  // Clasificar cada item en su columna segun X
+  function getCol(x) {
+    if (x <= avgDateX + 10) return 'fecha';
+    if (x < avgIdX - 5)     return 'desc';
+    if (x < valorXMin)      return 'id';
+    if (x < saldoXMin)      return 'valor';
+    return 'saldo';
+  }
+ 
+  // Construir filas de tabla
+  const tableRows = rows.map(row => {
+    const cols = {fecha:[], desc:[], id:[], valor:[], saldo:[]};
+    row.items.forEach(it => cols[getCol(it.x)].push(it.str));
+    return {
+      y: row.y,
+      fecha:  cols.fecha.join(' ').trim(),
+      desc:   cols.desc.join(' ').trim(),
+      id:     cols.id.join(' ').trim(),
+      valor:  cols.valor.join(' ').trim()
+    };
+  });
+ 
+  // Agrupar filas en movimientos
+  // Nueva fila de movimiento = col fecha tiene DD-MM-YYYY
+  const movements = [];
+  let currMov = null;
+  const skipDesc = /Descripci[oó]n|RESUMEN|DETALLE|Mercado Libre|Saldo ini|Entradas|Salidas|Saldo fin|Fecha|operaci/i;
+  const skipFecha = /^Fecha$/i;
+ 
+  for (const row of tableRows) {
+    if (skipFecha.test(row.fecha) || skipDesc.test(row.desc)) continue;
+    const isDate = dateFmt.test(row.fecha);
+    if (isDate) {
+      currMov = { fecha: row.fecha, lines: row.desc ? [row.desc] : [], id: row.id, valor: row.valor };
+      movements.push(currMov);
+    } else if (currMov && row.desc && !row.fecha) {
+      // Continuacion multilinea de descripcion
+      currMov.lines.push(row.desc);
+      if (!currMov.id && row.id) currMov.id = row.id;
+      if (!currMov.valor && row.valor) currMov.valor = row.valor;
+    }
+  }
+ 
+  // Convertir a movimientos
+  const parseMonto = str => {
+    if (!str) return null;
+    const s = str.replace(/\s/g,'');
+    // Capturar signo negativo que puede estar separado: "$ -30.000,00" o "-278.900,00"
+    const neg = s.includes('-');
+    const nums = s.replace(/[^\d,]/g,'').replace(',','.');
+    if (!nums) return null;
+    const val = parseFloat(nums);
+    return neg ? -val : val;
+  };
+ 
+  for (const mov of movements) {
+    const monto = parseMonto(mov.valor);
+    if (monto === null || isNaN(monto)) continue;
+    const desc = mov.lines.join(' ').replace(/\s+/g,' ').trim() || 'Movimiento';
+    // Limpiar descripcion de residuos
+    const cleanDesc = desc.replace(/^\d{10,}\s*/,'').replace(/\$[\s\d.,]*$/,'').trim() || 'Movimiento';
+    const [d, mo, y] = mov.fecha.split('-');
     movs.push({
       _id: Date.now() + movs.length + Math.random(),
-      fecha,
+      fecha: `${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`,
       monto,
-      categoria: clasify(desc, monto),
-      descripcion: desc,
+      categoria: clasify(cleanDesc, monto),
+      descripcion: cleanDesc,
       origen: 'Mp'
     });
   }
- 
-  // Fallback: si el regex principal no encontró nada, intentar approach por bloques
-  if (movs.length === 0) {
-    const dateRx = /\b(\d{2}-\d{2}-\d{4})\b/g;
-    const dates = [];
-    let dm;
-    while ((dm = dateRx.exec(text)) !== null) {
-      dates.push({ idx: dm.index, fecha: dm[1] });
-    }
-    for (let i = 0; i < dates.length; i++) {
-      const start = dates[i].idx;
-      const end = i + 1 < dates.length ? dates[i+1].idx : text.length;
-      const block = text.slice(start, end);
-      if (/Descripci[oó]n|^Fecha/i.test(block)) continue;
-      const ids = block.match(/\b\d{10,}\b/g) || [];
-      const opId = ids[0] || '';
-      const montoRx2 = /\$\s*(-?)\s*([\d.]+,\d{2})/g;
-      let mm; const montos = [];
-      while ((mm = montoRx2.exec(block)) !== null) {
-        const s = mm[1] === '-' ? -1 : 1;
-        montos.push(s * parseFloat(mm[2].replace(/\./g,'').replace(',','.')));
-      }
-      if (!montos.length) continue;
-      const monto = montos[0];
-      if (isNaN(monto) || monto === 0) continue;
-      let desc = block.replace(dates[i].fecha, '').trim();
-      if (opId) desc = desc.slice(0, desc.indexOf(opId)).trim();
-      desc = desc.replace(/\$[\s\d.,]+/g, '').replace(/\s+/g, ' ').trim();
-      if (!desc || desc.length < 3) desc = 'Movimiento';
-      const [d, mo, y] = dates[i].fecha.split('-');
-      movs.push({
-        _id: Date.now() + movs.length + Math.random(),
-        fecha: `${y}-${mo}-${d}`,
-        monto, categoria: clasify(desc, monto), descripcion: desc, origen: 'Mp'
-      });
-    }
-  }
- 
   return movs;
 }
  
