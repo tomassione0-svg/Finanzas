@@ -506,6 +506,7 @@
 <nav>
   <div class="logo">mis<span>$</span></div>
     <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="syncNow()">☁️ Sync</button>
+    <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="syncNow()">☁️ Sync</button>
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="showTab('upload')">📥 Importar</button>
     <button class="tab-btn" onclick="showTab('table')">📋 Movimientos</button>
@@ -819,50 +820,9 @@ function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
 function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLogin()"><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
 function doLogin(){const v=document.getElementById('lp')?.value;if(v===APP_PASS){sessionStorage.setItem('mf_auth','1');location.reload();}else{const e=document.getElementById('le');if(e)e.textContent='Contraseña incorrecta';}}
 async function saveToCloud(){try{await Promise.all([supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})]);}catch(e){console.warn('Cloud save:',e);}}
-async function loadFromCloud(){
-  try {
-    const f = 'id=eq.' + FIXED_ID;
-    const [mr, ir, dr] = await Promise.all([
-      supaFetch('movimientos','GET',null,f),
-      supaFetch('inversiones','GET',null,f),
-      supaFetch('dolares','GET',null,f)
-    ]);
-    // Always update from cloud, even if data is empty array
-    if (mr !== null && mr !== undefined) {
-      allMovs = mr?.[0]?.data || [];
-      allMovs.forEach((m,i) => { if(!m._id) m._id = Date.now()+i+Math.random(); });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(allMovs));
-    }
-    if (ir !== null && ir !== undefined) {
-      allInversiones = ir?.[0]?.data || [];
-      localStorage.setItem('misfinanzas_inversiones', JSON.stringify(allInversiones));
-    }
-    if (dr !== null && dr !== undefined) {
-      allDolares = dr?.[0]?.data || [];
-      localStorage.setItem('misfinanzas_dolares', JSON.stringify(allDolares));
-    }
-    updateCount(); updateStorageInfo();
-    return true;
-  } catch(e) {
-    console.warn('Cloud load error:', e);
-    return false;
-  }
-}
-async function syncNow(){
-  const btn = document.querySelector('[onclick="syncNow()"]');
-  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
-  const loaded = await loadFromCloud();
-  if (loaded) {
-    buildFilters(); renderTable();
-    if (document.getElementById('sec-charts').classList.contains('active')) buildCharts();
-    if (document.getElementById('sec-inversiones').classList.contains('active')) renderInversiones();
-    if (document.getElementById('sec-dolares').classList.contains('active')) renderDolares();
-    toast('✓ Sincronizado desde la nube', 'success');
-  } else {
-    toast('Sin conexión', 'error');
-  }
-  if (btn) { btn.textContent = '☁️ Sync'; btn.disabled = false; }
-}
+async function loadFromCloud(){try{const f='id=eq.'+FIXED_ID;const [mr,ir,dr]=await Promise.all([supaFetch('movimientos','GET',null,f),supaFetch('inversiones','GET',null,f),supaFetch('dolares','GET',null,f)]);let changed=false;if(mr?.[0]?.data){allMovs=mr[0].data;allMovs.forEach((m,i)=>{if(!m._id)m._id=Date.now()+i+Math.random();});localStorage.setItem('misfinanzas_movimientos',JSON.stringify(allMovs));changed=true;}if(ir?.[0]?.data){allInversiones=ir[0].data;localStorage.setItem('misfinanzas_inversiones',JSON.stringify(allInversiones));changed=true;}if(dr?.[0]?.data){allDolares=dr[0].data;localStorage.setItem('misfinanzas_dolares',JSON.stringify(allDolares));changed=true;}if(changed){updateCount();updateStorageInfo();}return changed;}catch(e){console.warn('Cloud load:',e);return false;}}
+async function syncNow(){toast('Sincronizando...','success');await loadFromCloud();buildFilters();renderTable();toast('✓ Sincronizado','success');}
+ 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
  
 // ========== STATE ==========
@@ -970,66 +930,32 @@ function movKey(m) {
 }
  
 function parseMP(text) {
-  // El PDF de MP tiene items de texto sueltos - los reconstruimos por posición
-  // Formato real: DD-MM-YYYY [desc multilinea] [ID numerico] $ valor $ saldo
+  // Parser robusto: busca patrón completo fecha + desc + ID + $monto + $saldo
+  // Maneja montos negativos con espacio: "$ -30.000,00"
+  // Maneja descripciones multilinea (nombres de personas)
   const movs = [];
  
-  // Regex para fecha DD-MM-YYYY
-  const dateRx = /\b(\d{2}-\d{2}-\d{4})\b/g;
-  // Regex para montos con formato argentino: $ 1.031,40 o $ -48.349,00
-  const montoRx = /\$\s*-?([\d.]+,\d{2})/g;
-  // ID de operacion: numero largo (10+ digitos)
-  const idRx = /\b\d{10,}\b/g;
+  // Regex principal: captura cada movimiento completo
+  // fecha(DD-MM-YYYY) + descripcion(cualquier texto) + ID(10+dig) + $±monto + $saldo
+  const lineRx = /(\d{2}-\d{2}-\d{4})\s+([\s\S]*?)\s+(\d{10,})\s+\$\s*(-?)\s*([\d.]+,\d{2})\s+\$\s*-?\s*[\d.]+,[\d]{2}/g;
  
-  // Extraer todas las fechas y sus posiciones
-  const dates = [];
-  let dm;
-  while ((dm = dateRx.exec(text)) !== null) {
-    dates.push({ idx: dm.index, fecha: dm[1] });
-  }
+  let m;
+  while ((m = lineRx.exec(text)) !== null) {
+    const fechaRaw = m[1];
+    let desc = m[2].replace(/\s+/g, ' ').trim();
+    const sign = m[4] === '-' ? -1 : 1;
+    const montoRaw = m[5].replace(/\./g, '').replace(',', '.');
+    const monto = sign * parseFloat(montoRaw);
  
-  if (dates.length === 0) return movs;
- 
-  // Para cada fecha, extraer el bloque de texto hasta la siguiente fecha
-  for (let i = 0; i < dates.length; i++) {
-    const start = dates[i].idx;
-    const end = i + 1 < dates.length ? dates[i+1].idx : text.length;
-    const block = text.slice(start, end);
- 
-    // Saltar si es encabezado de tabla (contiene "Descripción" o "Saldo")
-    if (/Descripci[oó]n|^Fecha/i.test(block)) continue;
- 
-    // Extraer ID de operación del bloque
-    const ids = block.match(/\b\d{10,}\b/g) || [];
-    const opId = ids[0] || '';
- 
-    // Extraer todos los montos del bloque
-    const montos = [];
-    let mm;
-    const montoRx2 = /\$\s*(-?[\d.]+,\d{2})/g;
-    while ((mm = montoRx2.exec(block)) !== null) {
-      // Convertir formato argentino: 1.031,40 -> 1031.40
-      const raw = mm[1].replace(/\./g, '').replace(',', '.');
-      montos.push(parseFloat(raw));
-    }
- 
-    // Primer monto = valor de la transacción, segundo = saldo (lo ignoramos)
-    if (montos.length === 0) continue;
-    const monto = montos[0];
     if (isNaN(monto) || monto === 0) continue;
  
-    // Extraer descripción: texto entre fecha y el ID de operación
-    let desc = block;
-    desc = desc.replace(dates[i].fecha, '').trim();
-    if (opId) desc = desc.slice(0, desc.indexOf(opId)).trim();
-    // Limpiar: quitar $ y números solos
-    desc = desc.replace(/\$[\s\d.,]+/g, '').replace(/\s+/g, ' ').trim();
-    // Only use fallback if truly empty — keep person names
-    if (!desc || desc.length < 3) desc = 'Movimiento';
+    // Limpiar descripción: quitar restos de $ y números sueltos
+    desc = desc.replace(/\$[\s\d.,]*/g, '').replace(/\s+/g, ' ').trim();
+    if (!desc || desc.length < 2) desc = 'Movimiento';
  
-    // Convertir fecha DD-MM-YYYY a YYYY-MM-DD
-    const [d, m, y] = dates[i].fecha.split('-');
-    const fecha = `${y}-${m}-${d}`;
+    // Convertir fecha DD-MM-YYYY → YYYY-MM-DD
+    const [d, mo, y] = fechaRaw.split('-');
+    const fecha = `${y}-${mo}-${d}`;
  
     movs.push({
       _id: Date.now() + movs.length + Math.random(),
@@ -1039,6 +965,43 @@ function parseMP(text) {
       descripcion: desc,
       origen: 'Mp'
     });
+  }
+ 
+  // Fallback: si el regex principal no encontró nada, intentar approach por bloques
+  if (movs.length === 0) {
+    const dateRx = /\b(\d{2}-\d{2}-\d{4})\b/g;
+    const dates = [];
+    let dm;
+    while ((dm = dateRx.exec(text)) !== null) {
+      dates.push({ idx: dm.index, fecha: dm[1] });
+    }
+    for (let i = 0; i < dates.length; i++) {
+      const start = dates[i].idx;
+      const end = i + 1 < dates.length ? dates[i+1].idx : text.length;
+      const block = text.slice(start, end);
+      if (/Descripci[oó]n|^Fecha/i.test(block)) continue;
+      const ids = block.match(/\b\d{10,}\b/g) || [];
+      const opId = ids[0] || '';
+      const montoRx2 = /\$\s*(-?)\s*([\d.]+,\d{2})/g;
+      let mm; const montos = [];
+      while ((mm = montoRx2.exec(block)) !== null) {
+        const s = mm[1] === '-' ? -1 : 1;
+        montos.push(s * parseFloat(mm[2].replace(/\./g,'').replace(',','.')));
+      }
+      if (!montos.length) continue;
+      const monto = montos[0];
+      if (isNaN(monto) || monto === 0) continue;
+      let desc = block.replace(dates[i].fecha, '').trim();
+      if (opId) desc = desc.slice(0, desc.indexOf(opId)).trim();
+      desc = desc.replace(/\$[\s\d.,]+/g, '').replace(/\s+/g, ' ').trim();
+      if (!desc || desc.length < 3) desc = 'Movimiento';
+      const [d, mo, y] = dates[i].fecha.split('-');
+      movs.push({
+        _id: Date.now() + movs.length + Math.random(),
+        fecha: `${y}-${mo}-${d}`,
+        monto, categoria: clasify(desc, monto), descripcion: desc, origen: 'Mp'
+      });
+    }
   }
  
   return movs;
@@ -1204,7 +1167,7 @@ function loadSampleData() {
   sample.forEach((m, i) => { m._id = Date.now() + i + Math.random(); });
   allMovs = sample;
   saveToStorage();
-  updateCount();
+  const tableBtn = document.querySelectorAll('.tab-btn')[1];
   updateStorageInfo();
   // Clear filters so all months show
   Object.assign(filterState, {mes:'', cat:'', desde:'', hasta:'', search:''});
@@ -1214,7 +1177,6 @@ function loadSampleData() {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-table').classList.add('active');
-  const tableBtn = document.querySelectorAll('.tab-btn')[1];
   if (tableBtn) tableBtn.classList.add('active');
   toast('✓ ' + allMovs.length + ' movimientos cargados. Mostrando tabla completa.', 'success');
 }
@@ -1822,7 +1784,7 @@ function assignTransferencia(idx) {
         </div>
         <div>
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Monto a asignar ($)</label>
-          <input type="number" id="assign-monto-${idx}" value="${totalDisponible}" oninput="calcCantidadCostoAssign(${idx})" 
+          <input type="number" id="assign-monto-${idx}" value="${totalDisponible}" oninput="calcCantidadCostoAssign(${idx})" oninput="calcCantidadCostoAssign(${idx})" 
             style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
         </div>
         <div>
@@ -1833,7 +1795,7 @@ function assignTransferencia(idx) {
         <div>
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Precio actual (auto o manual)</label>
           <div style="display:flex;gap:6px">
-            <input type="number" id="assign-precio-actual-${idx}" placeholder="ej: 6000" oninput="calcCantidadCostoAssign(${idx})" 
+            <input type="number" id="assign-precio-actual-${idx}" placeholder="ej: 6000" oninput="calcCantidadCostoAssign(${idx})" oninput="calcCantidadCostoAssign(${idx})" 
               style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
             <button onclick="fetchAndFillPrice(${idx})" style="background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;color:var(--accent);font-size:11px;cursor:pointer;white-space:nowrap">🔄 Auto</button>
           </div>
@@ -2731,31 +2693,24 @@ const STORAGE_KEY = 'misfinanzas_movimientos';
 function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allMovs));
-    localStorage.setItem('misfinanzas_inversiones', JSON.stringify(allInversiones));
-    localStorage.setItem('misfinanzas_dolares', JSON.stringify(allDolares));
   } catch(e) {
-    console.warn('No se pudo guardar localmente:', e);
+    console.warn('No se pudo guardar:', e);
   }
-  saveToCloud(); // siempre sube a la nube
+  saveToCloud();
 }
  
 function loadFromStorage() {
-  // Solo carga del localStorage como fallback si no hay internet
-  // La fuente de verdad es Supabase, no el localStorage
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       allMovs = JSON.parse(raw);
+      // Ensure all movs have a unique _id
       allMovs.forEach((m, i) => { if (!m._id) m._id = Date.now() + i + Math.random(); });
+      updateCount();
+      updateStorageInfo();
     }
-    const rawInv = localStorage.getItem('misfinanzas_inversiones');
-    if (rawInv) allInversiones = JSON.parse(rawInv);
-    const rawDol = localStorage.getItem('misfinanzas_dolares');
-    if (rawDol) allDolares = JSON.parse(rawDol);
-    updateCount();
-    updateStorageInfo();
   } catch(e) {
-    console.warn('Error cargando cache local:', e);
+    console.warn('Error cargando datos:', e);
   }
 }
  
@@ -2781,19 +2736,13 @@ function closeModal() {
  
 function clearAll() {
   allMovs = [];
-  allInversiones = [];
-  allDolares = [];
-  // Clear local cache
+  // Clear all possible storage keys
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem('misfinanzas_movimientos');
-  localStorage.removeItem('misfinanzas_inversiones');
-  localStorage.removeItem('misfinanzas_dolares');
-  // Clear cloud too — this is the key fix
-  saveToCloud();
+  localStorage.removeItem('misfinanzas_movimientos'); // legacy
   updateCount();
   updateStorageInfo();
   closeModal();
-  toast('Todo borrado (local y nube)', 'success');
+  toast('Movimientos borrados', 'success');
 }
  
 // Sobreescribir updateCount para también actualizar info de storage
@@ -2806,33 +2755,14 @@ function updateCount() {
 // ========== INIT ==========
 checkAuth();
 document.getElementById('m-fecha').valueAsDate = new Date();
- 
-// Carga los datos: primero localStorage como cache visual rápida,
-// luego la nube como fuente de verdad (sobreescribe el cache)
-loadFromStorage(); // cache rápido para que no se vea vacío
+loadFromStorage();
 loadDolaresFromStorage();
 loadInversionesFromStorage();
- 
-// La nube sobreescribe TODO — es la fuente de verdad
-loadFromCloud().then(loaded => {
-  if (loaded) {
-    // Nube cargó exitosamente: actualizar UI
-    if (document.getElementById('sec-table').classList.contains('active')) {
-      buildFilters(); renderTable();
-    }
-    if (document.getElementById('sec-charts').classList.contains('active')) {
-      buildCharts();
-    }
-    toast('☁️ Sincronizado', 'success');
-  } else {
-    // Sin conexión: usar cache local
-    toast('⚠️ Sin conexión — usando datos locales', 'error');
-  }
-});
- 
+loadFromCloud().then(changed => { if(changed) toast('✓ Sincronizado desde la nube','success'); });
 // Set default dates
 const iFechaEl = document.getElementById('i-fecha');
 if (iFechaEl) iFechaEl.valueAsDate = new Date();
+// Set default date for dolar form
 const dFechaEl = document.getElementById('d-fecha');
 if (dFechaEl) dFechaEl.valueAsDate = new Date();
 </script>
