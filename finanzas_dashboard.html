@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap');
-
+ 
   :root {
     --bg: #0d0f14;
     --bg2: #13161e;
@@ -24,16 +24,16 @@
     --muted: #6b7494;
     --card: #161923;
   }
-
+ 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
+ 
   body {
     font-family: 'DM Mono', monospace;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
   }
-
+ 
   /* NAV */
   nav {
     display: flex;
@@ -78,15 +78,15 @@
     border-color: var(--accent);
     font-weight: 500;
   }
-
+ 
   /* MAIN */
   main { padding: 24px 20px; max-width: 1400px; margin: 0 auto; }
   @media (max-width: 600px) { main { padding: 16px 12px; } nav { padding: 10px 12px; } .nav-tabs { gap: 4px; } .tab-btn { padding: 6px 10px; font-size: 11px; } }
-
+ 
   /* SECTION */
   .section { display: none; }
   .section.active { display: block; }
-
+ 
   /* UPLOAD ZONE */
   .upload-hero {
     text-align: center;
@@ -102,7 +102,7 @@
     -webkit-text-fill-color: transparent;
   }
   .upload-hero p { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
-
+ 
   .drop-zone {
     border: 2px dashed var(--border);
     border-radius: 16px;
@@ -122,7 +122,7 @@
   .drop-zone h3 { font-family: 'Syne', sans-serif; font-size: 18px; margin-bottom: 8px; }
   .drop-zone p { color: var(--muted); font-size: 13px; }
   .drop-zone input[type="file"] { display: none; }
-
+ 
   .btn {
     display: inline-flex;
     align-items: center;
@@ -140,7 +140,7 @@
   .btn-primary:hover { background: #00cc8a; transform: translateY(-1px); }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
   .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
-
+ 
   /* MANUAL ENTRY */
   .manual-form {
     background: var(--card);
@@ -175,7 +175,7 @@
   }
   input:focus, select:focus { border-color: var(--accent); }
   select option { background: var(--bg3); }
-
+ 
   /* TABLE */
   .table-container {
     background: var(--card);
@@ -233,7 +233,7 @@
   .badge-gasto { background: #ff6b6b15; color: var(--accent2); }
   .badge-rendimiento { background: #ffd16615; color: var(--accent3); }
   .badge-inversion { background: #4cc9f015; color: var(--accent4); }
-
+ 
   /* CHARTS */
   .charts-grid {
     display: grid;
@@ -255,7 +255,7 @@
   }
   .chart-card p { color: var(--muted); font-size: 11px; margin-bottom: 20px; }
   .chart-wrap { position: relative; height: 260px; }
-
+ 
   /* KPI CARDS */
   .kpi-grid {
     display: grid;
@@ -284,7 +284,7 @@
   .kpi label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); display: block; margin-bottom: 8px; }
   .kpi .value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; }
   .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
+ 
   /* EMAIL CONFIG */
   .email-card {
     background: var(--card);
@@ -348,7 +348,7 @@
   .preview-table td { padding: 7px 8px; border-bottom: 1px solid #2a2a3e; font-size: 12px; }
   .pos { color: #00cc88; }
   .neg { color: #e74c3c; }
-
+ 
   /* LOADING */
   .loading {
     display: none;
@@ -372,7 +372,7 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading p { color: var(--muted); font-size: 13px; }
-
+ 
   /* TOAST */
   .toast {
     position: fixed;
@@ -394,7 +394,7 @@
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast.success { border-color: var(--accent); }
   .toast.error { border-color: var(--accent2); }
-
+ 
   /* MONTH SELECTOR */
   .month-bar {
     display: flex;
@@ -419,21 +419,21 @@
     border-color: var(--accent);
     font-weight: 500;
   }
-
+ 
   /* DIVIDER */
   .divider {
     border: none;
     border-top: 1px solid var(--border);
     margin: 32px 0;
   }
-
+ 
   .empty-state {
     text-align: center;
     padding: 60px;
     color: var(--muted);
   }
   .empty-state h3 { font-family: 'Syne', sans-serif; margin-bottom: 8px; color: var(--text); }
-
+ 
   .row-delete {
     background: none;
     border: none;
@@ -447,7 +447,7 @@
   .row-delete:hover { color: var(--accent2); }
   @keyframes fadeOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(20px); } }
   .row-removing { animation: fadeOut 0.15s ease forwards; pointer-events:none; }
-
+ 
   .inline-select {
     background: transparent;
     border: none;
@@ -472,7 +472,7 @@
   .badge-select.badge-rendimiento { background: #ffd16615; color: var(--accent3); }
   .badge-select.badge-inversion { background: #4cc9f015; color: var(--accent4); }
   .badge-select:hover { opacity: 0.85; }
-
+ 
   .editable-desc {
     cursor: pointer;
     border-radius: 4px;
@@ -484,7 +484,7 @@
     background: var(--bg3);
     outline: 1px dashed var(--border);
   }
-
+ 
   @media (max-width: 768px) {
     main { padding: 20px 16px; }
     nav { padding: 16px; }
@@ -495,14 +495,14 @@
 </style>
 </head>
 <body>
-
+ 
 <div class="loading" id="loading">
   <div class="spinner"></div>
   <p id="loading-msg">Procesando PDF...</p>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <nav>
   <div class="logo">mis<span>$</span></div>
     <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="syncNow()">☁️ Sync</button>
@@ -514,16 +514,16 @@
     <button class="tab-btn" onclick="showTab('dolares')">💵 Dólares</button>
   </div>
 </nav>
-
+ 
 <main>
-
+ 
   <!-- UPLOAD -->
   <div class="section active" id="sec-upload">
     <div class="upload-hero">
       <h1>Finanzas de Tomás A. Sione</h1>
       <p>Importá tu reporte de Mercado Pago o cargá movimientos manualmente</p>
     </div>
-
+ 
     <div class="drop-zone" id="dropZone">
       <input type="file" id="pdfInput" accept=".pdf">
       <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--accent)">
@@ -534,11 +534,11 @@
       <br>
       <button class="btn btn-primary" onclick="document.getElementById('pdfInput').click()">Elegir PDF</button>
     </div>
-
+ 
     <div style="text-align:center; color: var(--muted); font-size:12px; margin: -20px 0 40px;">
       — o cargá manualmente —
     </div>
-
+ 
     <div class="manual-form">
       <h3>
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -584,7 +584,7 @@
       <br>
       <button class="btn btn-primary" onclick="addManual()">Agregar movimiento</button>
     </div>
-
+ 
     <div style="margin-top:40px; text-align:center">
       <p style="color:var(--muted);font-size:12px;margin-bottom:16px">
         <span id="count-badge" style="color:var(--accent);font-weight:700">0</span> movimientos guardados
@@ -597,9 +597,9 @@
         <button class="btn btn-ghost" onclick="showTab('dolares',event)">💵 Dólares</button>
       </div>
     </div>
-
+ 
   </div>
-
+ 
   <!-- TABLE -->
   <div class="section" id="sec-table">
     <div class="table-container">
@@ -629,7 +629,7 @@
       <div id="table-body"></div>
     </div>
   </div>
-
+ 
   <!-- CHARTS -->
   <div class="section" id="sec-charts">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px">
@@ -675,7 +675,7 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- SCRIPT -->
   <!-- INVERSIONES -->
   <div class="section" id="sec-inversiones">
@@ -683,9 +683,9 @@
       <h1 style="font-size:30px">📈 Inversiones</h1>
       <p>Asigná tus transferencias a Balanz a cada activo y seguí tu portfolio</p>
     </div>
-
+ 
     <div id="inv-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
-
+ 
     <!-- Asignar transferencia a activo -->
     <div class="manual-form" style="margin-bottom:28px">
       <h3>
@@ -742,24 +742,24 @@
       <br>
       <button class="btn btn-primary" onclick="addInversion()">Registrar inversión</button>
     </div>
-
+ 
     <!-- Transferencias sin asignar -->
     <div id="inv-sin-asignar-wrap" style="margin-bottom:24px"></div>
-
+ 
     <!-- Portfolio por activo -->
     <div id="inv-portfolio"></div>
   </div>
-
+ 
   <!-- DÓLARES -->
   <div class="section" id="sec-dolares">
     <div class="upload-hero" style="padding:32px 0 24px">
       <h1 style="font-size:32px">💵 Dólares</h1>
       <p>Registrá compras, ventas y gastos en dólares. Los pesos salen del historial de MP.</p>
     </div>
-
+ 
     <!-- KPIs dólares -->
     <div id="dolar-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
-
+ 
     <!-- Formulario -->
     <div class="manual-form" style="margin-bottom:28px">
       <h3>
@@ -799,7 +799,7 @@
         <button class="btn btn-ghost" style="font-size:11px" onclick="fetchDolarBlue()">🔄 Traer cotizaciones (Oficial / Blue)</button>
       </div>
     </div>
-
+ 
     <!-- Tabla dólares -->
     <div class="table-container">
       <div class="table-header">
@@ -808,11 +808,11 @@
       <div id="dolar-table-body"></div>
     </div>
   </div>
-
+ 
 </main>
-
+ 
 <script>
-
+ 
 const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
 async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
@@ -864,12 +864,12 @@ async function syncNow(){
   if (btn) { btn.textContent = '☁️ Sync'; btn.disabled = false; }
 }
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
+ 
 // ========== STATE ==========
 let allMovs = [];
 let charts = {};
 let selMonth = 'all';
-
+ 
 // ========== NAVIGATION ==========
 function showTab(id, evt) {
   const e = evt || event;
@@ -882,7 +882,7 @@ function showTab(id, evt) {
   if (id === 'inversiones') { renderInversiones(); setTimeout(autoFetchPrice, 100); }
   if (id === 'dolares') { renderDolares(); }
 }
-
+ 
 // ========== DRAG & DROP ==========
 const dz = document.getElementById('dropZone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
@@ -904,146 +904,208 @@ document.getElementById('pdfInput').addEventListener('change', e => {
   // Reset so same file can be loaded again after clearing
   e.target.value = '';
 });
-
+ 
 // ========== PDF PARSER ==========
 async function parsePDF(file) {
   showLoading('Leyendo PDF de Mercado Pago...');
   try {
     const ab = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-    let fullText = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
+ 
+    // Collect all text items with XY per page
+    // pdf.js uses bottom-up Y coords per page, so we track page separately
+    const pageItems = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const vp = page.getViewport({ scale: 1 });
       const content = await page.getTextContent();
-      // Sort items by Y position (top-to-bottom) then X (left-to-right)
-      // This ensures multi-line descriptions like "SIONE\nTOMAS AGUSTIN" get joined properly
-      const items = content.items.sort((a, b) => {
-        const yDiff = Math.round(b.transform[5]) - Math.round(a.transform[5]);
-        if (Math.abs(yDiff) < 3) return a.transform[4] - b.transform[4]; // same line: left to right
-        return -yDiff; // different lines: top to bottom
+      const items = [];
+      content.items.forEach(item => {
+        const s = item.str.trim();
+        if (!s) return;
+        // Convert bottom-up Y to top-down: topY = pageHeight - bottomY
+        const topY = vp.height - item.transform[5];
+        items.push({ text: s, x: item.transform[4], y: topY });
       });
-      // Group into lines by Y coordinate
-      const lines = [];
-      let lastY = null;
-      let currentLine = [];
-      items.forEach(item => {
-        const y = Math.round(item.transform[5]);
-        if (lastY === null || Math.abs(y - lastY) > 3) {
-          if (currentLine.length) lines.push(currentLine.join(' '));
-          currentLine = [item.str.trim()];
-          lastY = y;
-        } else {
-          currentLine.push(item.str.trim());
-        }
-      });
-      if (currentLine.length) lines.push(currentLine.join(' '));
-      fullText += lines.join(' ') + '\n';
+      pageItems.push(items);
     }
-    const parsed = parseMP(fullText);
+ 
+    const parsed = parseMP(pageItems);
     if (parsed.length === 0) {
-      toast('No se encontraron movimientos en el PDF. Intentá con otro archivo.', 'error');
+      toast('No se encontraron movimientos. Verificá que sea un PDF de Mercado Pago.', 'error');
     } else {
-      // Deduplicar: usar fecha+monto+descripcion como clave única
-      const existingKeys = new Set(allMovs.map(movKey));
-      const nuevos = parsed.filter(m => !existingKeys.has(movKey(m)));
-      const dupes = parsed.length - nuevos.length;
-      allMovs = [...allMovs, ...nuevos];
+      // Detectar el período cubierto por el PDF (min y max fecha)
+      const fechas = parsed.map(m => m.fecha).sort();
+      const periodoMin = fechas[0].slice(0, 7); // YYYY-MM del primer mov
+      const periodoMax = fechas[fechas.length - 1].slice(0, 7); // YYYY-MM del último mov
+ 
+      // Guardar movimientos manuales del período que NO vienen de Mp (para no perderlos)
+      const manualesDelPeriodo = allMovs.filter(m => {
+        const mes = m.fecha.slice(0, 7);
+        return mes >= periodoMin && mes <= periodoMax && m.origen !== 'Mp';
+      });
+ 
+      // Sacar todos los movimientos de Mp del período cubierto por el PDF
+      allMovs = allMovs.filter(m => {
+        const mes = m.fecha.slice(0, 7);
+        return !(mes >= periodoMin && mes <= periodoMax && m.origen === 'Mp');
+      });
+ 
+      // Agregar los del PDF (ya sin duplicados internos por seenIds)
+      // Preservar categorías editadas manualmente: si ya existía el mov con misma key, usar su categoría
+      const oldCats = {};
+      // (no hay nada que preservar porque los borramos — el usuario puede re-editar si quiere)
+      parsed.forEach(m => delete m._opId);
+ 
+      allMovs = [...allMovs, ...manualesDelPeriodo, ...parsed];
+      // Ordenar por fecha
+      allMovs.sort((a, b) => a.fecha.localeCompare(b.fecha));
+ 
       saveToStorage();
       updateCount();
-      if (nuevos.length === 0) {
-        toast(`Todos los movimientos ya estaban cargados (${dupes} duplicados)`, 'error');
-      } else if (dupes > 0) {
-        toast(`✓ ${nuevos.length} nuevos importados, ${dupes} duplicados omitidos`, 'success');
-      } else {
-        toast(`✓ ${nuevos.length} movimientos importados`, 'success');
-      }
+      const periodoStr = periodoMin === periodoMax ? periodoMin : periodoMin + ' → ' + periodoMax;
+      toast('✓ ' + parsed.length + ' movimientos cargados (' + periodoStr + ')', 'success');
     }
   } catch(e) {
     toast('Error al leer el PDF: ' + e.message, 'error');
+    console.error(e);
   }
   hideLoading();
 }
-
-// Clave única para detectar duplicados
+ 
 function movKey(m) {
-  return `${m.fecha}|${m.monto}|${m.descripcion.slice(0,50).toLowerCase().trim()}`;
+  return m.fecha + '|' + m.monto + '|' + m.descripcion.slice(0,50).toLowerCase().trim();
 }
-
-function parseMP(text) {
-  // El PDF de MP tiene items de texto sueltos - los reconstruimos por posición
-  // Formato real: DD-MM-YYYY [desc multilinea] [ID numerico] $ valor $ saldo
-  const movs = [];
-
-  // Regex para fecha DD-MM-YYYY
-  const dateRx = /\b(\d{2}-\d{2}-\d{4})\b/g;
-  // Regex para montos con formato argentino: $ 1.031,40 o $ -48.349,00
-  const montoRx = /\$\s*-?([\d.]+,\d{2})/g;
-  // ID de operacion: numero largo (10+ digitos)
-  const idRx = /\b\d{10,}\b/g;
-
-  // Extraer todas las fechas y sus posiciones
-  const dates = [];
-  let dm;
-  while ((dm = dateRx.exec(text)) !== null) {
-    dates.push({ idx: dm.index, fecha: dm[1] });
+ 
+function parseMP(pageItems) {
+  // ─────────────────────────────────────────────────────────
+  // Parser de PDF Mercado Pago basado en coordenadas XY reales
+  //
+  // Columnas del PDF de MP (en puntos, medidos del PDF real):
+  //   Fecha       : x ≤ 85
+  //   Descripción : 85 < x ≤ 190
+  //   ID operación: 190 < x ≤ 260
+  //   Valor       : 260 < x ≤ 340
+  //   Saldo       : x > 340  (ignorado)
+  //
+  // Cada movimiento tiene:
+  //   - Una "linea ancla": la línea que tiene fecha + ID + valor
+  //   - Opcionalmente líneas de descripción adicionales (arriba/abajo del ancla)
+  // ─────────────────────────────────────────────────────────
+ 
+  const C_FECHA = 85, C_DESC = 190, C_ID = 260, C_VALOR = 340;
+ 
+  function col(x) {
+    if (x <= C_FECHA) return 'fecha';
+    if (x <= C_DESC)  return 'desc';
+    if (x <= C_ID)    return 'id';
+    if (x <= C_VALOR) return 'valor';
+    return 'saldo';
   }
-
-  if (dates.length === 0) return movs;
-
-  // Para cada fecha, extraer el bloque de texto hasta la siguiente fecha
-  for (let i = 0; i < dates.length; i++) {
-    const start = dates[i].idx;
-    const end = i + 1 < dates.length ? dates[i+1].idx : text.length;
-    const block = text.slice(start, end);
-
-    // Saltar si es encabezado de tabla (contiene "Descripción" o "Saldo")
-    if (/Descripci[oó]n|^Fecha/i.test(block)) continue;
-
-    // Extraer ID de operación del bloque
-    const ids = block.match(/\b\d{10,}\b/g) || [];
-    const opId = ids[0] || '';
-
-    // Extraer todos los montos del bloque
-    const montos = [];
-    let mm;
-    const montoRx2 = /\$\s*(-?[\d.]+,\d{2})/g;
-    while ((mm = montoRx2.exec(block)) !== null) {
-      // Convertir formato argentino: 1.031,40 -> 1031.40
-      const raw = mm[1].replace(/\./g, '').replace(',', '.');
-      montos.push(parseFloat(raw));
+ 
+  const isDate = s => /^\d{2}-\d{2}-\d{4}$/.test(s);
+ 
+  const SKIP_RE = /Descripci[oó]n|RESUMEN|DETALLE|MOVIMIENTOS|operaci[oó]n|generaci[oó]n|Mercado Libre S|Caseros|mercadopago|Parque Patricios|Entradas:|Salidas:|Saldo inicial|Saldo final|^Fecha$|^Valor$|^ID$|^de$|^la$|^2\/2$|^1\/2$/;
+ 
+  const allMovs = [];
+ 
+  // Process each page independently, then merge by ID
+  const seenIds = new Set();
+ 
+  for (const items of pageItems) {
+    // Sort top-to-bottom, left-to-right
+    const sorted = [...items].sort((a, b) =>
+      Math.abs(a.y - b.y) > 4 ? a.y - b.y : a.x - b.x
+    );
+ 
+    // Group into lines by Y (tolerance 4px)
+    const lines = [];
+    let cur = null;
+    for (const item of sorted) {
+      if (!cur || Math.abs(item.y - cur.y) > 4) {
+        cur = { y: item.y, fecha: '', desc: '', id: '', valor: '' };
+        lines.push(cur);
+      }
+      const c = col(item.x);
+      if (c === 'saldo') continue;
+      cur[c] = cur[c] ? cur[c] + ' ' + item.text : item.text;
     }
-
-    // Primer monto = valor de la transacción, segundo = saldo (lo ignoramos)
-    if (montos.length === 0) continue;
-    const monto = montos[0];
-    if (isNaN(monto) || monto === 0) continue;
-
-    // Extraer descripción: texto entre fecha y el ID de operación
-    let desc = block;
-    desc = desc.replace(dates[i].fecha, '').trim();
-    if (opId) desc = desc.slice(0, desc.indexOf(opId)).trim();
-    // Limpiar: quitar $ y números solos
-    desc = desc.replace(/\$[\s\d.,]+/g, '').replace(/\s+/g, ' ').trim();
-    // Only use fallback if truly empty — keep person names
-    if (!desc || desc.length < 3) desc = 'Movimiento';
-
-    // Convertir fecha DD-MM-YYYY a YYYY-MM-DD
-    const [d, m, y] = dates[i].fecha.split('-');
-    const fecha = `${y}-${m}-${d}`;
-
-    movs.push({
-      _id: Date.now() + movs.length + Math.random(),
-      fecha,
-      monto,
-      categoria: clasify(desc, monto),
-      descripcion: desc,
-      origen: 'Mp'
+ 
+    // Filter out header/footer lines
+    const dataLines = lines.filter(l => {
+      const all = l.fecha + ' ' + l.desc + ' ' + l.id + ' ' + l.valor;
+      return !SKIP_RE.test(all);
     });
+ 
+    // Find anchor lines: have a valid date AND (id OR valor)
+    const anchors = [];
+    const floatingDesc = [];
+ 
+    for (const l of dataLines) {
+      if (isDate(l.fecha) && (l.id || l.valor)) {
+        anchors.push({
+          y: l.y,
+          fecha: l.fecha,
+          descLines: l.desc ? [l.desc] : [],
+          id: l.id.trim(),
+          valor: l.valor
+        });
+      } else if (!l.fecha && l.desc && !l.id && !l.valor) {
+        floatingDesc.push({ y: l.y, desc: l.desc });
+      }
+    }
+ 
+    // Attach floating description lines to nearest anchor (by Y distance)
+    for (const fd of floatingDesc) {
+      if (!anchors.length) continue;
+      let best = anchors[0], bestDist = Math.abs(fd.y - best.y);
+      for (const a of anchors) {
+        const d = Math.abs(fd.y - a.y);
+        if (d < bestDist) { bestDist = d; best = a; }
+      }
+      if (bestDist <= 30) { // within 30px = same movement block
+        best.descLines.push(fd.desc);
+      }
+    }
+ 
+    // Parse each anchor into a movement
+    for (const a of anchors) {
+      // Skip if we've seen this ID (duplicate across page boundary)
+      if (a.id && seenIds.has(a.id)) continue;
+      if (a.id) seenIds.add(a.id);
+ 
+      // Parse monto from valor string (e.g. "$ -39.980,00" or "$ 642,42")
+      const neg = a.valor.includes('-');
+      const numStr = a.valor.replace(/[^0-9,]/g, '').replace(',', '.');
+      if (!numStr) continue;
+      const monto = parseFloat(numStr) * (neg ? -1 : 1);
+      if (!monto) continue;
+ 
+      const desc = a.descLines
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim() || 'Movimiento';
+ 
+      const [d, mo, y] = a.fecha.split('-');
+      const fecha = y + '-' + mo.padStart(2,'0') + '-' + d.padStart(2,'0');
+ 
+      allMovs.push({
+        _id: Date.now() + allMovs.length + Math.random(),
+        _opId: a.id,  // used for dedup, removed before storing
+        fecha,
+        monto,
+        categoria: clasify(desc, monto),
+        descripcion: desc,
+        origen: 'Mp'
+      });
+    }
   }
-
-  return movs;
+ 
+  return allMovs;
 }
-
+ 
 function clasify(desc, monto) {
   const d = desc.toLowerCase();
   // Rendimientos de MP
@@ -1081,7 +1143,7 @@ function clasify(desc, monto) {
   if (monto > 0) return 'Ingreso';
   return 'Otros';
 }
-
+ 
 // ========== SAMPLE DATA ==========
 function loadSampleData() {
   const sample = [
@@ -1218,7 +1280,7 @@ function loadSampleData() {
   if (tableBtn) tableBtn.classList.add('active');
   toast('✓ ' + allMovs.length + ' movimientos cargados. Mostrando tabla completa.', 'success');
 }
-
+ 
 // ========== MANUAL ADD ==========
 function addManual() {
   const fecha = document.getElementById('m-fecha').value;
@@ -1237,15 +1299,15 @@ function addManual() {
   document.getElementById('m-categoria').selectedIndex = 0;
   document.getElementById('m-origen').selectedIndex = 0;
 }
-
+ 
 function updateCount() {
   document.getElementById('count-badge').textContent = allMovs.length;
 }
-
+ 
 // ========== TABLE ==========
 // Persistent filter state - survives tab switches
 const filterState = { mes:'', cat:'', desde:'', hasta:'', search:'' };
-
+ 
 function buildFilters() {
   const months = [...new Set(allMovs.map(m => m.fecha.slice(0,7)))].sort();
   const cats = [...new Set(allMovs.map(m => m.categoria))].sort();
@@ -1261,7 +1323,7 @@ function buildFilters() {
   document.getElementById('f-hasta').value = filterState.hasta;
   document.getElementById('f-search').value = filterState.search;
 }
-
+ 
 function saveFilterState() {
   filterState.mes    = document.getElementById('f-mes').value;
   filterState.cat    = document.getElementById('f-cat').value;
@@ -1269,7 +1331,7 @@ function saveFilterState() {
   filterState.hasta  = document.getElementById('f-hasta').value;
   filterState.search = document.getElementById('f-search').value;
 }
-
+ 
 function clearFilters() {
   filterState.mes = ''; filterState.cat = ''; filterState.desde = '';
   filterState.hasta = ''; filterState.search = '';
@@ -1280,7 +1342,7 @@ function clearFilters() {
   document.getElementById('f-search').value = '';
   renderTable();
 }
-
+ 
 function renderTable() {
   const mes = document.getElementById('f-mes').value;
   const cat = document.getElementById('f-cat').value;
@@ -1295,14 +1357,14 @@ function renderTable() {
     if (q && !JSON.stringify(m).toLowerCase().includes(q)) return false;
     return true;
   }).sort((a,b) => b.fecha.localeCompare(a.fecha));
-
+ 
   if (data.length === 0) {
     document.getElementById('table-body').innerHTML = '<div class="empty-state"><h3>Sin movimientos</h3><p>Probá cambiando los filtros</p></div>';
     return;
   }
-
+ 
   const CATS = ['Ingreso','Rendimiento Mercado','Pedidos Ya','Nafta','Gym','Psicologo','Inversiones','Compra Dólares','Chat Gpt','Otros'];
-
+ 
   const rows = data.map((m) => {
     const realIdx = allMovs.indexOf(m);
     const catOptions = CATS.map(c =>
@@ -1325,7 +1387,7 @@ function renderTable() {
       <td><button class="row-delete" onclick="event.stopPropagation();confirmDeleteRow('${m._id}')">✕</button></td>
     </tr>`;
   }).join('');
-
+ 
   document.getElementById('table-body').innerHTML = `
     <table>
       <thead><tr><th>Monto</th><th>Categoría</th><th>Descripción</th><th>Fecha</th><th>Origen</th><th></th></tr></thead>
@@ -1333,7 +1395,7 @@ function renderTable() {
     </table>
   `;
 }
-
+ 
 function confirmDeleteRow(id) {
   const mov = allMovs.find(m => String(m._id) === String(id));
   const desc = mov ? (mov.descripcion || '').slice(0, 40) : '';
@@ -1349,11 +1411,11 @@ function confirmDeleteRow(id) {
     '</div></div>';
   overlay.style.display = 'flex';
 }
-
+ 
 function deleteRowById(id) {
   const idx = allMovs.findIndex(m => String(m._id) === String(id));
   if (idx < 0) return;
-
+ 
   // Cascade inversiones
   const linkedActivos = new Set(
     allInversiones.filter(inv => inv.fromMovIdx === idx).map(inv => inv.activo)
@@ -1367,12 +1429,12 @@ function deleteRowById(id) {
   });
   allInversiones.forEach(inv => { if (typeof inv.fromMovIdx === 'number' && inv.fromMovIdx > idx) inv.fromMovIdx--; });
   saveInversiones();
-
+ 
   // Cascade dólares
   allDolares = allDolares.filter(d => d.fromMovIdx !== idx);
   allDolares.forEach(d => { if (typeof d.fromMovIdx === 'number' && d.fromMovIdx > idx) d.fromMovIdx--; });
   saveDolares();
-
+ 
   // Si el mov era un "Venta USD", eliminarlo también de allDolares
   const movToDelete = allMovs[idx];
   if (movToDelete && movToDelete.descripcion && movToDelete.descripcion.startsWith('Venta USD — ')) {
@@ -1391,27 +1453,27 @@ function deleteRowById(id) {
     );
     if (iIdx >= 0) { allInversiones.splice(iIdx, 1); saveInversiones(); }
   }
-
+ 
   allMovs.splice(idx, 1);
   saveToStorage();
   updateCount();
   buildFilters();
   renderTable();
 }
-
+ 
 function editField(idx, field, value) {
   if (idx < 0 || idx >= allMovs.length) return;
   allMovs[idx][field] = value;
   saveToStorage();
 }
-
+ 
 function editFieldById(id, field, value) {
   const m = allMovs.find(m => String(m._id) === String(id));
   if (!m) return;
   m[field] = value;
   saveToStorage();
 }
-
+ 
 function startEditDescById(el, id) {
   const m = allMovs.find(m => String(m._id) === String(id));
   if (!m) return;
@@ -1434,7 +1496,7 @@ function startEditDescById(el, id) {
   input.addEventListener('blur', save);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.value = current; input.blur(); } });
 }
-
+ 
 function startEditDesc(el, idx) {
   const current = allMovs[idx].descripcion;
   const input = document.createElement('input');
@@ -1455,34 +1517,34 @@ function startEditDesc(el, idx) {
   input.addEventListener('blur', save);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.value = current; input.blur(); } });
 }
-
+ 
 function badgeClass(cat) {
   if (cat === 'Ingreso') return 'ingreso';
   if (cat.includes('Rendimiento')) return 'rendimiento';
   if (cat === 'Inversiones') return 'inversion';
   return 'gasto';
 }
-
+ 
 // ========== CHARTS ==========
 function buildCharts() {
   const months = [...new Set(allMovs.map(m => m.fecha.slice(0,7)))].sort();
   if (!selMonth) selMonth = months[months.length-1] || 'all';
-
+ 
   // Pills
   const pills = document.getElementById('month-pills');
   pills.innerHTML = '<button class="month-pill '+(selMonth==='all'?'active':'')+'" onclick="setMonth(\'all\')">Todos</button>' +
     months.map(m => `<button class="month-pill ${selMonth===m?'active':''}" onclick="setMonth('${m}')">${fmtMonth(m)}</button>`).join('');
-
+ 
   // Filter data
   const data = selMonth === 'all' ? allMovs : allMovs.filter(m => m.fecha.startsWith(selMonth));
-
+ 
   // KPIs
   const ingresos = data.filter(m => m.categoria === 'Ingreso').reduce((s,m) => s + m.monto, 0);
   const gastos = data.filter(m => m.monto < 0 && m.categoria !== 'Inversiones' && m.categoria !== 'Rendimiento Mercado').reduce((s,m) => s + Math.abs(m.monto), 0);
   const inversiones = data.filter(m => m.categoria === 'Inversiones').reduce((s,m) => s + Math.abs(m.monto), 0);
   const rendimientos = data.filter(m => m.categoria === 'Rendimiento Mercado').reduce((s,m) => s + m.monto, 0);
   const balance = ingresos + rendimientos - gastos; // ingresos + rendimientos - gastos operativos
-
+ 
   const dataHasta=selMonth==='all'?allMovs:allMovs.filter(m=>m.fecha.slice(0,7)<=selMonth);
   const ingTot=dataHasta.filter(m=>m.categoria==='Ingreso').reduce((s,m)=>s+m.monto,0);
   const gasTot=dataHasta.filter(m=>m.monto<0&&m.categoria!=='Inversiones'&&m.categoria!=='Compra Dólares').reduce((s,m)=>s+Math.abs(m.monto),0);
@@ -1495,14 +1557,14 @@ function buildCharts() {
     <div class="kpi yellow"><label>Balance Neto</label><div class="value ${balance>=0?'':'amount-neg'}">${fmtK(balance)}</div><div class="sub">ingresos + rend. − gastos</div></div>
     <div class="kpi blue"><label>Saldo Consolidado MP</label><div class="value ${saldoConsolidado>=0?'':'amount-neg'}">${fmtK(saldoConsolidado)}</div><div class="sub">acumulado hasta el período</div></div>
   `;
-
+ 
   // Pie chart - gastos por categoría
   const gastosCat = {};
   data.filter(m => m.monto < 0 && m.categoria !== 'Inversiones' && m.categoria !== 'Compra Dólares').forEach(m => {
     gastosCat[m.categoria] = (gastosCat[m.categoria] || 0) + Math.abs(m.monto);
   });
   buildPie('chart-pie', gastosCat);
-
+ 
   // Bar chart - monthly ingresos vs gastos
   const monthlyData = {};
   months.forEach(mo => {
@@ -1513,17 +1575,17 @@ function buildCharts() {
     };
   });
   buildBar('chart-bar', months, monthlyData);
-
+ 
   // Line - balance acumulado
   buildLine('chart-line', months, monthlyData);
-
+ 
   // Inversiones por mes
   const invData = {};
   months.forEach(mo => {
     invData[mo] = allMovs.filter(m => m.fecha.startsWith(mo) && m.categoria === 'Inversiones').reduce((s,m) => s+Math.abs(m.monto), 0);
   });
   buildBarSingle('chart-inv', months, Object.values(invData), 'rgba(76,201,240,0.7)', 'Inversiones');
-
+ 
   // Rendimientos por mes: separar MP (pesos) de Dólar
   const rendMPData = {};
   const rendDolarData = {};
@@ -1535,12 +1597,12 @@ function buildCharts() {
   // Also pull dolar rendimientos from allDolares if any
   buildRendChart('chart-rend', months, rendMPData, rendDolarData);
 }
-
+ 
 function setMonth(m) {
   selMonth = m;
   buildCharts();
 }
-
+ 
 function buildPie(id, data) {
   const labels = Object.keys(data);
   const vals = Object.values(data);
@@ -1558,7 +1620,7 @@ function buildPie(id, data) {
       onClick: (e, els) => {
         if (!els.length) return;
         const label = Object.keys(data)[els[0].index];
-        if (label === 'Otros') showOtrosDetail();
+        showOtrosDetail(label);
       }
     }
   });
@@ -1568,28 +1630,35 @@ function buildPie(id, data) {
     const hint = document.createElement('p');
     hint.id = 'otros-hint';
     hint.style.cssText = 'font-size:10px;color:var(--muted);margin-top:6px;text-align:center';
-    hint.textContent = '💡 Click en "Otros" para ver detalle';
+    hint.textContent = '💡 Click en cualquier categoría para ver el detalle';
     wrap.appendChild(hint);
   }
 }
-
-function showOtrosDetail() {
+ 
+function showOtrosDetail(cat) {
   const monthData = selMonth === 'all' ? allMovs : allMovs.filter(m => m.fecha.startsWith(selMonth));
-  const otros = monthData.filter(m => m.categoria === 'Otros' && m.monto < 0);
+  // Si no se pasa categoría, mostrar Otros por retrocompatibilidad
+  const categoria = cat || 'Otros';
+  const movsCat = monthData.filter(m => m.categoria === categoria);
   const byDesc = {};
-  otros.forEach(m => {
+  movsCat.forEach(m => {
     const k = m.descripcion || 'Sin descripción';
-    byDesc[k] = (byDesc[k] || 0) + Math.abs(m.monto);
+    byDesc[k] = (byDesc[k] || 0) + (m.monto < 0 ? Math.abs(m.monto) : m.monto);
   });
-  const top = Object.entries(byDesc).sort((a,b) => b[1]-a[1]).slice(0, 10);
-  const rows = top.map(([d,v]) => `<tr><td style="padding:7px 12px;border-bottom:1px solid #252a38">${d}</td><td style="padding:7px 12px;border-bottom:1px solid #252a38;color:var(--accent2)">${fmt(v)}</td></tr>`).join('');
+  const top = Object.entries(byDesc).sort((a,b) => b[1]-a[1]).slice(0, 15);
+  const rows = top.map(([d,v]) => {
+    const isNeg = movsCat.find(m => (m.descripcion || '') === d)?.monto < 0;
+    return `<tr><td style="padding:7px 12px;border-bottom:1px solid #252a38;font-size:11px">${d}</td><td style="padding:7px 12px;border-bottom:1px solid #252a38;color:${isNeg ? 'var(--accent2)' : 'var(--accent)'};text-align:right">${fmt(v)}</td></tr>`;
+  }).join('');
   const el = document.getElementById('otros-detail');
   if (el) {
-    el.innerHTML = rows ? `<table style="width:100%;border-collapse:collapse;font-size:12px">${rows}</table>` : '<p style="color:var(--muted);padding:12px">Sin gastos en Otros</p>';
+    el.innerHTML = rows
+      ? `<div style="font-size:10px;color:var(--muted);padding:8px 12px 4px">${categoria}</div><table style="width:100%;border-collapse:collapse;font-size:12px">${rows}</table>`
+      : `<p style="color:var(--muted);padding:12px">Sin movimientos en ${categoria}</p>`;
     el.style.display = 'block';
   }
 }
-
+ 
 function buildBar(id, months, data) {
   destroyChart(id);
   charts[id] = new Chart(document.getElementById(id), {
@@ -1611,7 +1680,7 @@ function buildBar(id, months, data) {
     }
   });
 }
-
+ 
 function buildLine(id, months, data) {
   let accum = 0;
   const vals = months.map(m => {
@@ -1644,7 +1713,7 @@ function buildLine(id, months, data) {
     }
   });
 }
-
+ 
 function buildRendChart(id, months, mpData, dolarData) {
   destroyChart(id);
   const hasDolar = Object.values(dolarData).some(v => v > 0);
@@ -1667,7 +1736,7 @@ function buildRendChart(id, months, mpData, dolarData) {
     }
   });
 }
-
+ 
 function buildBarSingle(id, months, vals, color, label) {
   destroyChart(id);
   charts[id] = new Chart(document.getElementById(id), {
@@ -1686,18 +1755,18 @@ function buildBarSingle(id, months, vals, color, label) {
     }
   });
 }
-
+ 
 function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
 }
-
+ 
 // ========== EMAIL (script only) ==========
-
-
+ 
+ 
 // ========== INVERSIONES ==========
 const INV_KEY = 'misfinanzas_inversiones';
 let allInversiones = [];
-
+ 
 const ACTIVOS = ['Vista Energía','Google','Facebook','Fondo E1','Geopark','Oro','Nike','Vale','Minera','Otro'];
 const TICKER_MAP = {
   'Vista Energía': 'VIST.BA',
@@ -1708,7 +1777,7 @@ const TICKER_MAP = {
   'Nike': 'NKE.BA',
   'Vale': 'VALE.BA'
 };
-
+ 
 async function fetchTickerPrice(activo) {
   const ticker = TICKER_MAP[activo];
   if (!ticker) return null;
@@ -1757,19 +1826,19 @@ const ACTIVO_COLORS = {
   'Fondo E1':'#00e5a0','Geopark':'#f72585','Oro':'#ffd166',
   'Nike':'#ff6b6b','Vale':'#7209b7','Minera':'#06d6a0','Otro':'#6b7494'
 };
-
+ 
 function loadInversionesFromStorage() {
   try {
     const raw = localStorage.getItem(INV_KEY);
     if (raw) allInversiones = JSON.parse(raw);
   } catch(e) {}
 }
-
+ 
 function saveInversiones() {
   localStorage.setItem(INV_KEY, JSON.stringify(allInversiones));
   saveToCloud();
 }
-
+ 
 function addInversion() {
   const fecha = document.getElementById('i-fecha').value;
   let activo = document.getElementById('i-activo').value;
@@ -1797,7 +1866,7 @@ function addInversion() {
   document.getElementById('i-precio-manual').value = '';
   document.getElementById('i-precio-actual').value = '';
 }
-
+ 
 function assignTransferencia(idx) {
   const mov = allMovs[idx];
   if (!mov) return;
@@ -1859,13 +1928,13 @@ function assignTransferencia(idx) {
     document.getElementById(`assign-activo-custom-${idx}`).style.display = this.value === 'Otro' ? 'block' : 'none';
   });
 }
-
+ 
 function closeAssignModal() {
   const overlay = document.getElementById('modal-overlay');
   overlay.innerHTML = defaultModalHTML();
   overlay.style.display = 'none';
 }
-
+ 
 function defaultModalHTML() {
   return `<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center">
     <div style="font-size:32px;margin-bottom:12px">🗑</div>
@@ -1877,7 +1946,7 @@ function defaultModalHTML() {
     </div>
   </div>`;
 }
-
+ 
 function confirmAssign(idx) {
   const mov = allMovs[idx];
   if (!mov) return;
@@ -1919,9 +1988,9 @@ function confirmAssign(idx) {
   renderInversiones();
   toast(`✓ ${fmt(monto)} asignados a ${activo}`, 'success');
 }
-
+ 
 let deletedInvStack = [];
-
+ 
 function editPrecioActual(idx) {
   const inv = allInversiones[idx];
   if (!inv) return;
@@ -1935,14 +2004,14 @@ function editPrecioActual(idx) {
     toast('✓ Precio actualizado', 'success');
   }
 }
-
+ 
 function addRescate(activo) {
   // Calculate cost basis for this activo
   const compras = allInversiones.filter(i => i.activo === activo && i.tipo === 'compra');
   const totalInvertido = compras.reduce((s,i) => s + i.monto, 0);
   const ventasPrevias = allInversiones.filter(i => i.activo === activo && i.tipo === 'venta').reduce((s,i) => s + i.monto, 0);
   const disponible = totalInvertido - ventasPrevias;
-
+ 
   // Show rescate modal
   const overlay = document.getElementById('modal-overlay');
   const hoy = new Date().toISOString().slice(0,10);
@@ -1975,7 +2044,7 @@ function addRescate(activo) {
   overlay.style.display = 'flex';
   updateRescateGL('${activo}', totalInvertido);
 }
-
+ 
 function updateRescateGL(activo, costoBase) {
   const val = parseFloat(document.getElementById('resc-monto')?.value) || 0;
   const el = document.getElementById('resc-gl');
@@ -1990,23 +2059,23 @@ function updateRescateGL(activo, costoBase) {
     <div style="color:${color};font-size:15px;font-weight:700">${icon} ${fmt(Math.abs(gl))} (${Math.abs(pct)}%)</div>
     <div style="color:var(--muted);font-size:11px">Costo: ${fmt(costoBase)} → Rescate: ${fmt(val)}</div>`;
 }
-
+ 
 function confirmRescate(activo, costoBase) {
   const val = parseFloat(document.getElementById('resc-monto')?.value);
   const fecha = document.getElementById('resc-fecha')?.value;
   if (!val || val <= 0 || !fecha) { toast('Completá fecha y monto', 'error'); return; }
-
+ 
   const gl = val - costoBase;
   const pct = costoBase > 0 ? (gl / costoBase * 100).toFixed(1) : 0;
   const glTxt = gl >= 0 ? `+${fmt(gl)} (${pct}%)` : `-${fmt(Math.abs(gl))} (${pct}%)`;
-
+ 
   allInversiones.push({
     id: Date.now() + Math.random(),
     fecha, activo, monto: val, tipo: 'venta',
     notas: `Rescate · G/L: ${glTxt}`
   });
   saveInversiones();
-
+ 
   // Add ingreso in Movimientos
   const movDescripcion = `Rescate ${activo} · G/L: ${glTxt}`;
   allMovs.push({
@@ -2023,13 +2092,13 @@ function confirmRescate(activo, costoBase) {
   renderInversiones();
   toast(`✓ Rescate ${fmt(val)} · ${glTxt}`, 'success');
 }
-
+ 
 function toggleCustomActivo() {
   const sel = document.getElementById('i-activo');
   const custom = document.getElementById('i-activo-custom');
   if (sel && custom) custom.style.display = sel.value === 'Otro' ? 'block' : 'none';
 }
-
+ 
 function calcCantidadCosto() {
   const monto = parseFloat(document.getElementById('i-monto')?.value);
   const precioActual = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
@@ -2074,7 +2143,7 @@ async function autoFetchPrice() {
     toast(`No se pudo obtener ${ticker}. Ingresá manualmente.`, 'error');
   }
 }
-
+ 
 async function fetchAndFillPrice(idx) {
   const sel = document.getElementById(`assign-activo-${idx}`);
   if (!sel) return;
@@ -2130,11 +2199,11 @@ function undoDeleteInversion() {
   renderInversiones();
   toast('✓ Inversión restaurada', 'success');
 }
-
+ 
 function renderInversiones() {
   // Get all movements classified as Inversiones (not yet assigned)
   const sinAsignar = allMovs.filter(m => m.categoria === 'Inversiones' && !m.asignada);
-
+ 
   // Sin asignar block
   const wrapSA = document.getElementById('inv-sin-asignar-wrap');
   if (sinAsignar.length > 0) {
@@ -2164,13 +2233,13 @@ function renderInversiones() {
   } else {
     wrapSA.innerHTML = '';
   }
-
+ 
   // KPIs
   const totalInv = allInversiones.filter(i => i.tipo === 'compra').reduce((s,i) => s + i.monto, 0);
   const totalRescates = allInversiones.filter(i => i.tipo === 'venta').reduce((s,i) => s + Math.abs(i.monto), 0);
   const neto = totalInv - totalRescates;
   const actCount = new Set(allInversiones.map(i => i.activo)).size;
-
+ 
   // Calculate portfolio margin if prices available
   const invConPrecio = allInversiones.filter(i => i.tipo === 'compra' && i.precioCosto && i.precioActual);
   const valorMercado = invConPrecio.reduce((s,i) => {
@@ -2181,7 +2250,7 @@ function renderInversiones() {
   const glTotal = valorMercado - costoPrecio;
   const glPct = costoPrecio > 0 ? (glTotal/costoPrecio*100).toFixed(1) : null;
   const glColor = glTotal >= 0 ? 'var(--accent)' : 'var(--accent2)';
-
+ 
   document.getElementById('inv-kpis').innerHTML = `
     <div class="kpi blue"><label>Total invertido</label><div class="value">${fmtK(totalInv)}</div><div class="sub">capital aportado</div></div>
     <div class="kpi green"><label>Rescates</label><div class="value">${fmtK(totalRescates)}</div><div class="sub">capital retirado</div></div>
@@ -2192,21 +2261,21 @@ function renderInversiones() {
       <div class="sub">${glPct !== null ? `${glTotal >= 0 ? '+' : ''}${glPct}% sobre costo` : 'Cargá precios para ver'}</div>
     </div>
   `;
-
+ 
   // Portfolio by activo
   const portfolio = document.getElementById('inv-portfolio');
   if (allInversiones.length === 0) {
     portfolio.innerHTML = '<div class="empty-state"><h3>Sin inversiones registradas</h3><p>Asigná una transferencia o cargá manualmente</p></div>';
     return;
   }
-
+ 
   // Group by activo
   const byActivo = {};
   allInversiones.forEach((inv, idx) => {
     if (!byActivo[inv.activo]) byActivo[inv.activo] = [];
     byActivo[inv.activo].push({...inv, _idx: idx});
   });
-
+ 
   // Separate open positions and closed operations
   const abiertas = [];
   const cerradas = [];
@@ -2219,9 +2288,9 @@ function renderInversiones() {
     const isClosed = totalVent >= totalComp * 0.95;
     (isClosed ? cerradas : abiertas).push({ activo, movs, totalComp, totalVent, compras, ventas });
   });
-
+ 
   const thStyle = 'text-align:left;padding:8px 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px';
-
+ 
   const makeCard = ({ activo, movs, totalComp, totalVent, compras, ventas }, isClosed) => {
     const neto = totalComp - totalVent;
     const color = ACTIVO_COLORS[activo] || '#6b7494';
@@ -2295,7 +2364,7 @@ function renderInversiones() {
       </table>
     </div>`;
   };
-
+ 
   let html2 = '';
   if (abiertas.length) {
     html2 += `<h3 style="font-family:Syne,sans-serif;margin-bottom:16px">📊 Posiciones abiertas</h3>`;
@@ -2307,23 +2376,23 @@ function renderInversiones() {
   }
   portfolio.innerHTML = html2 || '<div class="empty-state"><h3>Sin inversiones</h3></div>';
 }
-
+ 
 // ========== DÓLARES ==========
 const DOLAR_KEY = 'misfinanzas_dolares';
 let allDolares = [];
-
+ 
 function loadDolaresFromStorage() {
   try {
     const raw = localStorage.getItem(DOLAR_KEY);
     if (raw) allDolares = JSON.parse(raw);
   } catch(e) {}
 }
-
+ 
 function saveDolares() {
   localStorage.setItem(DOLAR_KEY, JSON.stringify(allDolares));
   saveToCloud();
 }
-
+ 
 function addDolar() {
   const fecha = document.getElementById('d-fecha').value;
   const tipo = document.getElementById('d-tipo').value;
@@ -2334,10 +2403,10 @@ function addDolar() {
   const esEntrada = tipo === 'compra';
   const montoUsd = esEntrada ? usd : -usd;
   const montoArs = cotiz ? Math.abs(montoUsd) * cotiz : null;
-
+ 
   allDolares.push({ fecha, tipo, usd: montoUsd, cotiz: cotiz || null, ars: montoArs, descripcion: desc });
   saveDolares();
-
+ 
   // Venta USD → impacta Movimientos como Ingreso en pesos
   if (tipo === 'venta' && montoArs) {
     const dolarMovId = Date.now() + Math.random();
@@ -2357,12 +2426,12 @@ function addDolar() {
   } else {
     toast('✓ Movimiento USD registrado', 'success');
   }
-
+ 
   renderDolares();
   document.getElementById('d-usd').value = '';
   document.getElementById('d-desc').value = '';
 }
-
+ 
 async function fetchDolarBlue() {
   const hint = document.getElementById('dolar-blue-hint');
   hint.textContent = 'Buscando cotizaciones...';
@@ -2381,7 +2450,7 @@ async function fetchDolarBlue() {
     hint.textContent = 'No se pudo obtener. Ingresalo manualmente.';
   }
 }
-
+ 
 function deleteDolar(idx) {
   const dolar = allDolares[idx];
   // If it was a venta, remove the matching Ingreso from Movimientos
@@ -2404,7 +2473,7 @@ function deleteDolar(idx) {
   saveDolares();
   renderDolares();
 }
-
+ 
 function updateDpcBalance(movIdx, pesosSalidos) {
   const usd = parseFloat(document.getElementById('dpc-usd-'+movIdx)?.value)||0;
   const cotiz = parseFloat(document.getElementById('dpc-cotiz-'+movIdx)?.value)||0;
@@ -2417,7 +2486,7 @@ function updateDpcBalance(movIdx, pesosSalidos) {
     else el.innerHTML='<span style="color:var(--accent2)">Excede '+fmt(Math.abs(diff))+'</span>';
   } else el.textContent='';
 }
-
+ 
 async function fetchOficialForPendiente(movIdx) {
   const cotizEl = document.getElementById(`dpc-cotiz-${movIdx}`);
   if (!cotizEl || cotizEl.value) return; // don't overwrite if already has value
@@ -2428,7 +2497,7 @@ async function fetchOficialForPendiente(movIdx) {
     cotizEl.placeholder = `Oficial $${d.venta}`;
   } catch(e) {}
 }
-
+ 
 function registrarDolarPendiente(movIdx) {
   const mov = allMovs[movIdx];
   if (!mov) return;
@@ -2463,21 +2532,21 @@ function registrarDolarPendiente(movIdx) {
   renderDolares();
   toast(`✓ ${usd} USD · cotiz $${cotiz} · pesos: ${fmt(arsExacto)}`, 'success');
 }
-
+ 
 function renderDolares() {
   // ── Pending: movimientos "Compra Dólares" no registrados en allDolares ──
   const registeredMovIdxs = new Set(allDolares.filter(d => d.fromMovIdx !== undefined).map(d => d.fromMovIdx));
   const pendingCompras = allMovs
     .map((m, i) => ({...m, _idx: i}))
     .filter(m => m.categoria === 'Compra Dólares' && !registeredMovIdxs.has(m._idx));
-
+ 
   const pendingWrap = document.getElementById('dolar-pending') || (() => {
     const div = document.createElement('div');
     div.id = 'dolar-pending';
     const tbl = document.querySelector('#sec-dolares .table-container'); if(tbl) tbl.after(div); else document.getElementById('dolar-kpis').after(div);
     return div;
   })();
-
+ 
   if (pendingCompras.length > 0) {
     const rows = pendingCompras.map(m => `
       <tr>
@@ -2512,32 +2581,32 @@ function renderDolares() {
   } else {
     pendingWrap.innerHTML = '';
   }
-
+ 
   // KPIs
   const totalUsd = allDolares.reduce((s, d) => s + d.usd, 0);
   const compras = allDolares.filter(d => d.tipo === 'compra').reduce((s,d) => s + d.usd, 0);
   const gastos = allDolares.filter(d => d.tipo === 'gasto').reduce((s,d) => s + Math.abs(d.usd), 0);
   const lastCotiz = allDolares.filter(d => d.cotiz).slice(-1)[0]?.cotiz || 0;
   const valorArs = totalUsd * lastCotiz;
-
+ 
   document.getElementById('dolar-kpis').innerHTML = `
     <div class="kpi green"><label>Stock actual</label><div class="value">U$D ${totalUsd.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div><div class="sub">dólares disponibles</div></div>
     <div class="kpi yellow"><label>Valor en pesos</label><div class="value">${fmtK(valorArs)}</div><div class="sub">${lastCotiz ? 'a $'+lastCotiz+'/USD' : 'ingresá cotización'}</div></div>
     <div class="kpi blue"><label>Total comprado</label><div class="value">U$D ${compras.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">entradas históricas</div></div>
     <div class="kpi red"><label>Total gastado</label><div class="value">U$D ${gastos.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">salidas históricas</div></div>
   `;
-
+ 
   // Table
   if (allDolares.length === 0) {
     document.getElementById('dolar-table-body').innerHTML = '<div class="empty-state"><h3>Sin movimientos en USD</h3><p>Registrá tu primera compra o gasto en dólares</p></div>';
     return;
   }
-
+ 
   const tipoLabel = { compra:'💰 Compra USD', venta:'📤 Venta USD', gasto:'💸 Gasto USD' };
   const tipoClass = { compra:'ingreso', venta:'gasto', gasto:'gasto', ingreso_usd:'ingreso' };
-
+ 
   const sorted = [...allDolares].map((d,i) => ({...d, _idx:i})).sort((a,b) => b.fecha.localeCompare(a.fecha));
-
+ 
   const rows = sorted.map(d => `
     <tr>
       <td class="${d.usd >= 0 ? 'amount-pos' : 'amount-neg'}">U$D ${Math.abs(d.usd).toLocaleString('es-AR',{minimumFractionDigits:2})}</td>
@@ -2548,20 +2617,20 @@ function renderDolares() {
       <td style="color:${d.tipo==='venta'?'var(--accent)':'var(--muted)'}">${d.ars ? (d.tipo==='venta'?'↗ ':'')+fmtK(d.ars) : '—'}</td>
       <td><button class="row-delete" onclick="deleteDolar(${d._idx})">✕</button></td>
     </tr>`).join('');
-
+ 
   document.getElementById('dolar-table-body').innerHTML = `
     <table>
       <thead><tr><th>USD</th><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Cotización</th><th>En $</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
-
+ 
 // ========== EXPORT PDF ==========
 async function exportChartsPDF() {
   const btn = document.getElementById('btn-export-pdf');
   btn.textContent = '⏳ Generando...';
   btn.disabled = true;
-
+ 
   try {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -2569,32 +2638,32 @@ async function exportChartsPDF() {
     const pageH = 297;
     const margin = 12;
     const contentW = pageW - margin * 2;
-
+ 
     // ── Header ──
     pdf.setFillColor(13, 15, 20);
     pdf.rect(0, 0, pageW, pageH, 'F');
-
+ 
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(18);
     pdf.setTextColor(0, 229, 160);
     pdf.text('Finanzas de Tomás A. Sione', margin, 20);
-
+ 
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(107, 116, 148);
     const mesLabel = selMonth === 'all' ? 'Todos los meses' : fmtMonth(selMonth);
     const now = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
     pdf.text(`Período: ${mesLabel}  ·  Generado el ${now}`, margin, 27);
-
+ 
     // ── KPIs as text ──
     const kpiEl = document.getElementById('kpi-grid');
     const kpis = kpiEl ? kpiEl.querySelectorAll('.kpi') : [];
     let yPos = 35;
     const kpiW = (contentW - 6) / 4;
-
+ 
     pdf.setDrawColor(37, 42, 56);
     pdf.setLineWidth(0.3);
-
+ 
     kpis.forEach((kpi, i) => {
       const x = margin + i * (kpiW + 2);
       pdf.setFillColor(22, 25, 35);
@@ -2610,18 +2679,18 @@ async function exportChartsPDF() {
       pdf.setTextColor(232, 236, 244);
       pdf.text(value.slice(0, 14), x + 3, yPos + 13);
     });
-
+ 
     yPos += 24;
-
+ 
     // ── Capture each chart canvas ──
     const chartIds = ['chart-pie', 'chart-bar', 'chart-line', 'chart-inv', 'chart-rend'];
     const chartTitles = ['Gastos por Categoría', 'Ingresos vs Gastos', 'Balance Acumulado', 'Inversiones', 'Rendimientos'];
     const chartHeights = [55, 55, 40, 50, 50]; // mm
-
+ 
     for (let i = 0; i < chartIds.length; i++) {
       const canvas = document.getElementById(chartIds[i]);
       if (!canvas) continue;
-
+ 
       // Check if we need a new page
       const neededH = chartHeights[i] + 10;
       if (yPos + neededH > pageH - margin) {
@@ -2630,30 +2699,30 @@ async function exportChartsPDF() {
         pdf.rect(0, 0, pageW, pageH, 'F');
         yPos = margin;
       }
-
+ 
       // Side by side: pie + bar on same row
       const isLeft = (i === 0);
       const isRight = (i === 1);
       const isFull = (i === 2);
       const isLeft2 = (i === 3);
       const isRight2 = (i === 4);
-
+ 
       let x = margin;
       let w = contentW;
       if (isLeft || isLeft2) { x = margin; w = contentW / 2 - 2; }
       if (isRight || isRight2) { x = margin + contentW / 2 + 2; w = contentW / 2 - 2; }
       if (isFull) { w = contentW; }
-
+ 
       // Card background
       pdf.setFillColor(22, 25, 35);
       pdf.roundedRect(x, yPos, w, chartHeights[i] + 8, 2, 2, 'F');
-
+ 
       // Title
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(8);
       pdf.setTextColor(232, 236, 244);
       pdf.text(chartTitles[i], x + 3, yPos + 6);
-
+ 
       // Capture canvas as image
       try {
         const imgData = canvas.toDataURL('image/png', 0.92);
@@ -2663,11 +2732,11 @@ async function exportChartsPDF() {
         pdf.setTextColor(107, 116, 148);
         pdf.text('(gráfico no disponible)', x + 3, yPos + chartHeights[i] / 2);
       }
-
+ 
       // Move yPos after pairs
       if (isRight || isRight2 || isFull) yPos += chartHeights[i] + 12;
     }
-
+ 
     // ── Footer ──
     const totalPages = pdf.internal.getNumberOfPages();
     for (let p = 1; p <= totalPages; p++) {
@@ -2677,12 +2746,12 @@ async function exportChartsPDF() {
       pdf.text(`Página ${p} de ${totalPages}  ·  mis$`, margin, pageH - 6);
       pdf.text(now, pageW - margin, pageH - 6, { align: 'right' });
     }
-
+ 
     // ── Save ──
     const fileName = `finanzas_${mesLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
     pdf.save(fileName);
     toast('✓ PDF exportado', 'success');
-
+ 
   } catch(err) {
     console.error(err);
     toast('Error al generar el PDF: ' + err.message, 'error');
@@ -2693,7 +2762,7 @@ async function exportChartsPDF() {
     btn.innerHTML = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Exportar PDF`;
   }
 }
-
+ 
 // ========== UTILS ==========
 function fmt(n) { return '$' + Math.abs(n).toLocaleString('es-AR', { minimumFractionDigits:0, maximumFractionDigits:0 }); }
 function fmtK(n) {
@@ -2711,23 +2780,23 @@ function fmtFecha(iso) {
   const [y,m,d] = iso.split('-');
   return `${d}/${m}/${y}`;
 }
-
+ 
 function showLoading(msg) {
   document.getElementById('loading-msg').textContent = msg || 'Procesando...';
   document.getElementById('loading').classList.add('show');
 }
 function hideLoading() { document.getElementById('loading').classList.remove('show'); }
-
+ 
 function toast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show ' + type;
   setTimeout(() => t.classList.remove('show'), 3500);
 }
-
+ 
 // ========== STORAGE ==========
 const STORAGE_KEY = 'misfinanzas_movimientos';
-
+ 
 function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allMovs));
@@ -2738,7 +2807,7 @@ function saveToStorage() {
   }
   saveToCloud(); // siempre sube a la nube
 }
-
+ 
 function loadFromStorage() {
   // Solo carga del localStorage como fallback si no hay internet
   // La fuente de verdad es Supabase, no el localStorage
@@ -2758,7 +2827,7 @@ function loadFromStorage() {
     console.warn('Error cargando cache local:', e);
   }
 }
-
+ 
 function updateStorageInfo() {
   const el = document.getElementById('storage-info');
   if (!el) return;
@@ -2768,17 +2837,17 @@ function updateStorageInfo() {
   const hasta = fmtMonth(fechas[fechas.length-1].slice(0,7));
   el.textContent = desde === hasta ? `(${desde})` : `(${desde} → ${hasta})`;
 }
-
+ 
 function confirmClearAll() {
   const overlay = document.getElementById('modal-overlay');
   overlay.innerHTML = defaultModalHTML();
   overlay.style.display = 'flex';
 }
-
+ 
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
 }
-
+ 
 function clearAll() {
   allMovs = [];
   allInversiones = [];
@@ -2795,24 +2864,24 @@ function clearAll() {
   closeModal();
   toast('Todo borrado (local y nube)', 'success');
 }
-
+ 
 // Sobreescribir updateCount para también actualizar info de storage
 const _origUpdateCount = updateCount;
 function updateCount() {
   document.getElementById('count-badge').textContent = allMovs.length;
   updateStorageInfo();
 }
-
+ 
 // ========== INIT ==========
 checkAuth();
 document.getElementById('m-fecha').valueAsDate = new Date();
-
+ 
 // Carga los datos: primero localStorage como cache visual rápida,
 // luego la nube como fuente de verdad (sobreescribe el cache)
 loadFromStorage(); // cache rápido para que no se vea vacío
 loadDolaresFromStorage();
 loadInversionesFromStorage();
-
+ 
 // La nube sobreescribe TODO — es la fuente de verdad
 loadFromCloud().then(loaded => {
   if (loaded) {
@@ -2829,7 +2898,7 @@ loadFromCloud().then(loaded => {
     toast('⚠️ Sin conexión — usando datos locales', 'error');
   }
 });
-
+ 
 // Set default dates
 const iFechaEl = document.getElementById('i-fecha');
 if (iFechaEl) iFechaEl.valueAsDate = new Date();
