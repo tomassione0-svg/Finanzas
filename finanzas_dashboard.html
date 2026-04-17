@@ -259,7 +259,7 @@
   /* KPI CARDS */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 16px;
     margin-bottom: 24px;
   }
@@ -506,6 +506,7 @@
 <nav>
   <div class="logo">mis<span>$</span></div>
     <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="syncNow()">☁️ Sync</button>
+    <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;margin-left:12px;border-color:#ff6b6b44;color:#ff6b6b" onclick="confirmLogout()">⎋ Salir</button>
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="showTab('upload')">📥 Importar</button>
     <button class="tab-btn" onclick="showTab('table')">📋 Movimientos</button>
@@ -816,7 +817,42 @@
 const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
 async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
-function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLogin()"><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
+function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><div style="position:relative;margin-bottom:10px"><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px 44px 14px 14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()"><button onclick="togglePass()" id="eye-btn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7494;padding:4px;display:flex;align-items:center"><svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
+function togglePass() {
+  const inp = document.getElementById('lp');
+  const open = document.getElementById('eye-open');
+  const closed = document.getElementById('eye-closed');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (open) open.style.display = 'none';
+    if (closed) closed.style.display = 'block';
+  } else {
+    inp.type = 'password';
+    if (open) open.style.display = 'block';
+    if (closed) closed.style.display = 'none';
+  }
+}
+ 
+function confirmLogout() {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.innerHTML = '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:360px;width:90%;text-align:center">' +
+    '<div style="font-size:28px;margin-bottom:10px">🔒</div>' +
+    '<h3 style="font-family:Syne,sans-serif;font-size:16px;margin-bottom:8px">¿Salir de la app?</h3>' +
+    '<p style="color:var(--muted);font-size:12px;margin-bottom:20px">Se cerrará la sesión y tendrás que ingresar la contraseña de nuevo.</p>' +
+    '<div style="display:flex;gap:10px;justify-content:center">' +
+    '<button class="btn btn-ghost" style="font-size:13px;padding:9px 20px" onclick="closeModal()">No</button>' +
+    '<button class="btn" style="background:#ff6b6b;color:#fff;font-size:13px;padding:9px 20px;border:none" onclick="doLogout()">Sí, salir</button>' +
+    '</div></div>';
+  overlay.style.display = 'flex';
+}
+ 
+function doLogout() {
+  closeModal();
+  sessionStorage.removeItem('mf_auth');
+  showLoginScreen();
+}
+ 
 function doLogin(){const v=document.getElementById('lp')?.value;if(v===APP_PASS){sessionStorage.setItem('mf_auth','1');location.reload();}else{const e=document.getElementById('le');if(e)e.textContent='Contraseña incorrecta';}}
 async function saveToCloud(){try{await Promise.all([supaFetch('movimientos','POST',{id:FIXED_ID,data:allMovs}),supaFetch('inversiones','POST',{id:FIXED_ID,data:allInversiones}),supaFetch('dolares','POST',{id:FIXED_ID,data:allDolares})]);}catch(e){console.warn('Cloud save:',e);}}
 async function loadFromCloud(){
@@ -1545,16 +1581,19 @@ function buildCharts() {
   const rendimientos = data.filter(m => m.categoria === 'Rendimiento Mercado').reduce((s,m) => s + m.monto, 0);
   const balance = ingresos + rendimientos - gastos; // ingresos + rendimientos - gastos operativos
  
-  const dataHasta=selMonth==='all'?allMovs:allMovs.filter(m=>m.fecha.slice(0,7)<=selMonth);
-  const ingTot=dataHasta.filter(m=>m.categoria==='Ingreso').reduce((s,m)=>s+m.monto,0);
-  const gasTot=dataHasta.filter(m=>m.monto<0&&m.categoria!=='Inversiones'&&m.categoria!=='Compra Dólares').reduce((s,m)=>s+Math.abs(m.monto),0);
-  const rendTot=dataHasta.filter(m=>m.categoria==='Rendimiento Mercado').reduce((s,m)=>s+m.monto,0);
-  const saldoConsolidado=ingTot+rendTot-gasTot;
+  const dataHasta = selMonth==='all' ? allMovs : allMovs.filter(m=>m.fecha.slice(0,7)<=selMonth);
+  const ingTot   = dataHasta.filter(m=>m.categoria==='Ingreso').reduce((s,m)=>s+m.monto,0);
+  const gasTot   = dataHasta.filter(m=>m.monto<0&&m.categoria!=='Inversiones'&&m.categoria!=='Compra Dólares').reduce((s,m)=>s+Math.abs(m.monto),0);
+  const rendTot  = dataHasta.filter(m=>m.categoria==='Rendimiento Mercado').reduce((s,m)=>s+m.monto,0);
+  const invTot   = dataHasta.filter(m=>m.categoria==='Inversiones').reduce((s,m)=>s+Math.abs(m.monto),0);
+  const saldoConsolidado = ingTot + rendTot - gasTot - invTot;
+ 
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi green"><label>Ingresos</label><div class="value">${fmtK(ingresos)}</div><div class="sub">transferencias recibidas</div></div>
     <div class="kpi yellow" style="border-top-color:var(--accent3)"><label>Rend. Mercado Pago</label><div class="value" style="color:var(--accent3)">${fmtK(rendimientos)}</div><div class="sub">intereses acumulados</div></div>
     <div class="kpi red"><label>Gastos</label><div class="value">${fmtK(gastos)}</div><div class="sub">gastos operativos</div></div>
-    <div class="kpi yellow"><label>Balance Neto</label><div class="value ${balance>=0?'':'amount-neg'}">${fmtK(balance)}</div><div class="sub">ingresos + rend. − gastos</div></div>
+    <div class="kpi" style="border-top-color:#a78bfa"><label style="color:#a78bfa">Inversiones</label><div class="value" style="color:#a78bfa">${fmtK(inversiones)}</div><div class="sub">capital enviado a invertir</div></div>
+    <div class="kpi yellow"><label>Balance Neto</label><div class="value ${(balance-inversiones)>=0?'':'amount-neg'}">${fmtK(balance-inversiones)}</div><div class="sub">ingresos + rend. − gastos − inv.</div></div>
     <div class="kpi blue"><label>Saldo Consolidado MP</label><div class="value ${saldoConsolidado>=0?'':'amount-neg'}">${fmtK(saldoConsolidado)}</div><div class="sub">acumulado hasta el período</div></div>
   `;
  
@@ -1653,10 +1692,21 @@ function showOtrosDetail(cat) {
   const el = document.getElementById('otros-detail');
   if (el) {
     el.innerHTML = rows
-      ? `<div style="font-size:10px;color:var(--muted);padding:8px 12px 4px">${categoria}</div><table style="width:100%;border-collapse:collapse;font-size:12px">${rows}</table>`
-      : `<p style="color:var(--muted);padding:12px">Sin movimientos en ${categoria}</p>`;
+      ? `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px 4px">
+           <span style="font-size:10px;color:var(--muted)">${categoria}</span>
+           <button onclick="clearCatDetail()" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:2px 10px;cursor:pointer">✕ Cerrar</button>
+         </div><table style="width:100%;border-collapse:collapse;font-size:12px">${rows}</table>`
+      : `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px">
+           <p style="color:var(--muted);margin:0;font-size:12px">Sin movimientos en ${categoria}</p>
+           <button onclick="clearCatDetail()" style="font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:2px 10px;cursor:pointer">✕ Cerrar</button>
+         </div>`;
     el.style.display = 'block';
   }
+}
+ 
+function clearCatDetail() {
+  const el = document.getElementById('otros-detail');
+  if (el) { el.innerHTML = ''; el.style.display = 'none'; }
 }
  
 function buildBar(id, months, data) {
@@ -1955,26 +2005,40 @@ function confirmAssign(idx) {
   if (activo === 'Otro') {
     activo = document.getElementById(`assign-activo-custom-${idx}`).value.trim() || 'Otro';
   }
-  const monto = parseFloat(document.getElementById(`assign-monto-${idx}`).value);
+  const montoInput = parseFloat(document.getElementById(`assign-monto-${idx}`).value);
   const precio = parseFloat(document.getElementById(`assign-precio-${idx}`).value) || null;
-  const notas = document.getElementById(`assign-notas-${idx}`).value;
-  if (isNaN(monto) || monto <= 0) { toast('Ingresá un monto válido', 'error'); return; }
+  const precioActual = parseFloat(document.getElementById(`assign-precio-actual-${idx}`)?.value) || null;
+  const notasRaw = document.getElementById(`assign-notas-${idx}`).value;
+ 
+  if (isNaN(montoInput) || montoInput <= 0) { toast('Ingresá un monto válido', 'error'); return; }
+ 
+  // Calcular monto real: si tenemos precio costo y cantidad en notas, usar cantidad × precio
+  let monto = montoInput;
+  let notas = notasRaw;
+  const precioBase = precio || precioActual;
+  if (precioBase && precioBase > 0) {
+    const cantidad = Math.floor(montoInput / precioBase);
+    if (cantidad > 0) {
+      monto = cantidad * precioBase;
+      notas = cantidad + ' acciones';
+    }
+  }
+ 
   const totalDisp = Math.abs(mov.monto) - (mov.asignadoTotal || 0);
   if (monto > totalDisp + 1) { toast(`Monto supera lo disponible ($${totalDisp.toLocaleString('es-AR')})`, 'error'); return; }
-  
-  const precioActual = parseFloat(document.getElementById(`assign-precio-actual-${idx}`)?.value) || null;
+ 
   allInversiones.push({
     id: Date.now() + Math.random(),
     fecha: mov.fecha,
     activo,
     monto,
     tipo: 'compra',
-    precioCosto: precio,
+    precioCosto: precioBase,
     precioActual,
     notas,
     fromMovIdx: idx
   });
-  
+ 
   // Track how much of this mov has been assigned
   allMovs[idx].asignadoTotal = (allMovs[idx].asignadoTotal || 0) + monto;
   const totalMov = Math.abs(mov.monto);
@@ -2852,17 +2916,20 @@ function clearAll() {
   allMovs = [];
   allInversiones = [];
   allDolares = [];
-  // Clear local cache
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem('misfinanzas_movimientos');
   localStorage.removeItem('misfinanzas_inversiones');
   localStorage.removeItem('misfinanzas_dolares');
-  // Clear cloud too — this is the key fix
   saveToCloud();
   updateCount();
   updateStorageInfo();
   closeModal();
-  toast('Todo borrado (local y nube)', 'success');
+  buildFilters();
+  renderTable();
+  renderInversiones();
+  renderDolares();
+  if (document.getElementById('sec-charts').classList.contains('active')) buildCharts();
+  toast('Todo borrado', 'success');
 }
  
 // Sobreescribir updateCount para también actualizar info de storage
