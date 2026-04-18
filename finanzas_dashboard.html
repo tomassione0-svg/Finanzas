@@ -718,30 +718,53 @@
         </div>
         <div class="form-group">
           <label>Tipo</label>
-          <select id="i-tipo">
+          <select id="i-tipo" onchange="calcCantidadCosto()">
             <option value="compra">Compra</option>
             <option value="venta">Venta / Rescate</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Monto invertido ($)</label>
-          <input type="number" id="i-monto" placeholder="ej: 500000" oninput="calcCantidadCosto()">
+          <label>Monto disponible ($)</label>
+          <input type="number" id="i-monto" placeholder="ej: 150000" oninput="calcCantidadCosto()">
         </div>
         <div class="form-group">
-          <label>Precio costo (por unidad)</label>
-          <input type="number" id="i-precio-manual" placeholder="ej: 5000">
-        </div>
-        <div class="form-group">
-          <label>Precio actual (por unidad)</label>
-          <input type="number" id="i-precio-actual" placeholder="ej: 6200" oninput="calcCantidadCosto()">
+          <label>Precio por acción/cuota ($)</label>
+          <input type="number" id="i-precio-actual" placeholder="Se trae automático" oninput="calcCantidadCosto()" style="border-color:var(--accent3)">
         </div>
         <div class="form-group full">
-          <label>Notas (opcional)</label>
-          <input type="text" id="i-notas" placeholder="ej: 10 acciones">
+          <label>Notas adicionales (opcional)</label>
+          <input type="text" id="i-notas" placeholder="ej: compra en lote">
         </div>
       </div>
+ 
+      <!-- Panel de resumen de compra — igual que en asignación automática -->
+      <div id="i-resumen" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Resumen de la operación</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+          <div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">CANTIDAD</div>
+            <div id="i-res-cantidad" style="font-size:18px;font-weight:700;color:var(--accent);font-family:Syne,sans-serif">—</div>
+            <div style="font-size:10px;color:var(--muted)">acciones/cuotas</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">MONTO REAL</div>
+            <div id="i-res-monto" style="font-size:18px;font-weight:700;color:var(--text);font-family:Syne,sans-serif">—</div>
+            <div style="font-size:10px;color:var(--muted)">precio × cantidad</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">VUELTO</div>
+            <div id="i-res-vuelto" style="font-size:18px;font-weight:700;font-family:Syne,sans-serif">—</div>
+            <div style="font-size:10px;color:var(--muted)">no se invierte</div>
+          </div>
+        </div>
+        <div id="i-res-alerta" style="font-size:12px;color:var(--accent3);display:none;margin-top:4px"></div>
+      </div>
+ 
+      <!-- Campo oculto para el monto real calculado -->
+      <input type="hidden" id="i-precio-manual">
+      <input type="hidden" id="i-monto-real">
       <br>
-      <button class="btn btn-primary" onclick="addInversion()">Registrar inversión</button>
+      <button class="btn btn-primary" onclick="addInversion()" style="margin-top:16px">Registrar inversión</button>
     </div>
  
     <!-- Transferencias sin asignar -->
@@ -1895,26 +1918,56 @@ function addInversion() {
   if (activo === 'Otro') {
     activo = document.getElementById('i-activo-custom').value.trim() || 'Otro';
   }
-  const monto = parseFloat(document.getElementById('i-monto').value);
+  const montoDisponible = parseFloat(document.getElementById('i-monto').value);
   const tipo = document.getElementById('i-tipo').value;
   const precio = parseFloat(document.getElementById('i-precio-manual').value) || null;
   const precioActual = parseFloat(document.getElementById('i-precio-actual').value) || null;
   const notas = document.getElementById('i-notas').value;
-  if (!fecha || isNaN(monto) || monto <= 0) { toast('Completá fecha y monto', 'error'); return; }
+ 
+  if (!fecha || isNaN(montoDisponible) || montoDisponible <= 0) {
+    toast('Completá fecha y monto', 'error'); return;
+  }
+ 
+  // Use the REAL monto (precio × cantidad) if we have the price,
+  // otherwise use whatever was entered
+  let montoReal = montoDisponible;
+  let cantidad = null;
+  if (precio && precio > 0) {
+    cantidad = tipo === 'compra' ? Math.floor(montoDisponible / precio) : Math.ceil(montoDisponible / precio);
+    montoReal = cantidad * precio;
+    if (montoReal <= 0) { toast('El monto no alcanza para comprar ninguna acción a ese precio', 'error'); return; }
+  }
+ 
+  const notasFinal = notas || (cantidad ? cantidad + ' acciones' : '');
+ 
   allInversiones.push({ 
     id: Date.now() + Math.random(),
-    fecha, activo, monto, tipo,
+    fecha, activo,
+    monto: montoReal,  // ← monto real efectivamente invertido
+    tipo,
     precioCosto: precio,
-    precioActual,
-    notas 
+    precioActual: precioActual || precio,
+    notas: notasFinal,
+    cantidad
   });
   saveInversiones();
   renderInversiones();
-  toast('✓ Inversión registrada', 'success');
+ 
+  const vuelto = montoDisponible - montoReal;
+  if (vuelto > 0) {
+    toast(`✓ Inversión registrada: ${fmt(montoReal)} (${cantidad} acc.) · Vuelto: ${fmt(vuelto)}`, 'success');
+  } else {
+    toast('✓ Inversión registrada', 'success');
+  }
+ 
+  // Reset form
   document.getElementById('i-monto').value = '';
   document.getElementById('i-notas').value = '';
   document.getElementById('i-precio-manual').value = '';
   document.getElementById('i-precio-actual').value = '';
+  document.getElementById('i-monto-real').value = '';
+  const resumen = document.getElementById('i-resumen');
+  if (resumen) resumen.style.display = 'none';
 }
  
 function assignTransferencia(idx) {
@@ -2164,14 +2217,50 @@ function toggleCustomActivo() {
 }
  
 function calcCantidadCosto() {
-  const monto = parseFloat(document.getElementById('i-monto')?.value);
-  const precioActual = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
+  const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const tipo = document.getElementById('i-tipo')?.value || 'compra';
+  const resumen = document.getElementById('i-resumen');
+  const resMontoReal = document.getElementById('i-monto-real');
+ 
+  // Hide panel if missing data
+  if (!monto || monto <= 0 || !precio || precio <= 0) {
+    if (resumen) resumen.style.display = 'none';
+    return;
+  }
+ 
+  // Calculate: how many whole units can we buy?
+  const cantidad = tipo === 'compra' ? Math.floor(monto / precio) : Math.ceil(monto / precio);
+  const montoReal = cantidad * precio;  // actual pesos used
+  const vuelto = monto - montoReal;     // leftover pesos
+ 
+  // Update hidden precio-manual field (costo = precio actual at time of purchase)
   const costEl = document.getElementById('i-precio-manual');
+  if (costEl) costEl.value = precio;
+ 
+  // Update hidden monto-real
+  if (resMontoReal) resMontoReal.value = montoReal;
+ 
+  // Auto-fill notas
   const notasEl = document.getElementById('i-notas');
-  if (!monto || monto <= 0) { if(costEl) costEl.value=''; if(notasEl) notasEl.value=''; return; }
-  if (precioActual > 0) {
-    const cantidad = Math.floor(monto / precioActual);
-    if (cantidad > 0) { if(costEl) costEl.value=precioActual; if(notasEl) notasEl.value=cantidad+' acciones'; }
+  if (notasEl && !notasEl.value) notasEl.value = cantidad + ' acciones';
+ 
+  // Show the summary panel
+  if (resumen) {
+    resumen.style.display = 'block';
+    document.getElementById('i-res-cantidad').textContent = cantidad.toLocaleString('es-AR');
+    document.getElementById('i-res-monto').textContent = fmt(montoReal);
+    const vueltoEl = document.getElementById('i-res-vuelto');
+    vueltoEl.textContent = fmt(vuelto);
+    vueltoEl.style.color = vuelto > 0 ? 'var(--accent3)' : 'var(--accent)';
+ 
+    const alerta = document.getElementById('i-res-alerta');
+    if (vuelto > 0) {
+      alerta.style.display = 'block';
+      alerta.textContent = `⚠ Con $${precio.toLocaleString('es-AR')} por acción, solo podés comprar ${cantidad} acciones. Quedan ${fmt(vuelto)} sin invertir.`;
+    } else {
+      alerta.style.display = 'none';
+    }
   }
 }
 function calcCantidadCostoAssign(idx) {
@@ -2986,3 +3075,4 @@ if (dFechaEl) dFechaEl.valueAsDate = new Date();
 </div>
 </body>
 </html>
+ 
