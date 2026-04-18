@@ -728,8 +728,14 @@
           <input type="number" id="i-monto" placeholder="ej: 150000" oninput="calcCantidadCosto()">
         </div>
         <div class="form-group">
-          <label>Precio por acción/cuota ($)</label>
-          <input type="number" id="i-precio-actual" placeholder="Se trae automático" oninput="calcCantidadCosto()" style="border-color:var(--accent3)">
+          <label style="display:flex;align-items:center;gap:6px">
+            Precio por acción/cuota ($)
+            <button onclick="autoFetchPrice()" title="Actualizar precio desde el mercado"
+              style="background:none;border:none;cursor:pointer;color:var(--accent3);font-size:14px;padding:0;line-height:1;display:flex;align-items:center">
+              🔄
+            </button>
+          </label>
+          <input type="number" id="i-precio-actual" placeholder="Se trae automático" oninput="calcCantidadCosto()" style="border-color:var(--border)">
         </div>
         <div class="form-group full">
           <label>Notas adicionales (opcional)</label>
@@ -739,7 +745,13 @@
 
       <!-- Panel de resumen de compra — igual que en asignación automática -->
       <div id="i-resumen" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px">
-        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Resumen de la operación</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Resumen de la operación</div>
+          <button onclick="editResumenManual()" title="Editar cantidad, monto y vuelto"
+            style="background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--accent3);font-size:13px;padding:3px 8px;display:flex;align-items:center;gap:4px;font-family:DM Mono,monospace">
+            <span>✎</span><span style="font-size:10px;color:var(--muted)">editar</span>
+          </button>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
           <div>
             <div style="font-size:10px;color:var(--muted);margin-bottom:3px">CANTIDAD</div>
@@ -2256,6 +2268,31 @@ function toggleCustomActivo() {
   if (sel && custom) custom.style.display = sel.value === 'Otro' ? 'block' : 'none';
 }
 
+function editCantidadManual() {
+  const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const cantActual = document.getElementById('i-res-cantidad')?.textContent?.replace(/\./g,'') || '';
+  const nueva = prompt('Editá la cantidad de acciones:', cantActual);
+  if (nueva === null) return;
+  const cant = parseInt(nueva);
+  if (isNaN(cant) || cant <= 0) { toast('Cantidad inválida', 'error'); return; }
+  const montoReal = cant * precio;
+  const montoDisp = parseFloat(document.getElementById('i-monto')?.value) || 0;
+  const vuelto = montoDisp - montoReal;
+  // Actualizar resumen
+  document.getElementById('i-res-cantidad').textContent = cant.toLocaleString('es-AR');
+  document.getElementById('i-res-monto').textContent = fmt(montoReal);
+  const vueltoEl = document.getElementById('i-res-vuelto');
+  vueltoEl.textContent = fmt(Math.max(0, vuelto));
+  vueltoEl.style.color = vuelto > 0 ? 'var(--accent3)' : 'var(--accent)';
+  // Actualizar notas
+  const notasEl = document.getElementById('i-notas');
+  if (notasEl) notasEl.value = cant.toLocaleString('es-AR') + ' acciones';
+  // Guardar monto real en campo oculto
+  const montoRealEl = document.getElementById('i-monto-real');
+  if (montoRealEl) montoRealEl.value = montoReal;
+  toast('✓ Cantidad actualizada a ' + cant + ' acciones', 'success');
+}
+
 function calcCantidadCosto() {
   const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
   const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
@@ -2303,6 +2340,69 @@ function calcCantidadCosto() {
     }
   }
 }
+function editResumenManual() {
+  // Allow user to override the calculated cantidad
+  const cantActual = document.getElementById('i-res-cantidad')?.textContent?.replace(/[^0-9]/g,'') || '';
+  const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
+
+  const overlay = document.getElementById('modal-overlay');
+  overlay.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:380px;width:95%">
+      <h3 style="font-family:Syne,sans-serif;margin-bottom:16px">Editar operación</h3>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px">Cantidad de acciones/cuotas</label>
+        <input type="number" id="edit-cant" value="${cantActual}" min="1"
+          style="width:100%;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:14px;box-sizing:border-box"
+          oninput="previewEditResumen()">
+      </div>
+      <div id="edit-preview" style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;min-height:40px"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="applyEditResumen(${precio}, ${monto})">Aplicar</button>
+      </div>
+    </div>`;
+  overlay.style.display = 'flex';
+  setTimeout(() => { document.getElementById('edit-cant')?.focus(); previewEditResumen(); }, 50);
+}
+
+function previewEditResumen() {
+  const cant = parseInt(document.getElementById('edit-cant')?.value) || 0;
+  const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
+  const el = document.getElementById('edit-preview');
+  if (!el || !precio) return;
+  const montoReal = cant * precio;
+  const vuelto = monto - montoReal;
+  const color = vuelto < 0 ? 'var(--accent2)' : vuelto > 0 ? 'var(--accent3)' : 'var(--accent)';
+  el.innerHTML = `Monto real: <strong>${fmt(montoReal)}</strong> · Vuelto: <strong style="color:${color}">${fmt(vuelto)}</strong>`;
+}
+
+function applyEditResumen(precio, monto) {
+  const cant = parseInt(document.getElementById('edit-cant')?.value) || 0;
+  if (cant <= 0) { toast('Cantidad inválida', 'error'); return; }
+  const montoReal = cant * precio;
+  const vuelto = monto - montoReal;
+  // Update the resumen panel
+  document.getElementById('i-res-cantidad').textContent = cant.toLocaleString('es-AR');
+  document.getElementById('i-res-monto').textContent = fmt(montoReal);
+  const vueltoEl = document.getElementById('i-res-vuelto');
+  vueltoEl.textContent = fmt(vuelto);
+  vueltoEl.style.color = vuelto > 0 ? 'var(--accent3)' : 'var(--accent)';
+  // Update hidden monto-real
+  const mr = document.getElementById('i-monto-real');
+  if (mr) mr.value = montoReal;
+  // Update notas
+  const notasEl = document.getElementById('i-notas');
+  if (notasEl) notasEl.value = cant + ' acciones';
+  const alerta = document.getElementById('i-res-alerta');
+  if (alerta) {
+    if (vuelto > 0) { alerta.style.display='block'; alerta.textContent=`${cant} acciones × ${fmt(precio)} = ${fmt(montoReal)}. Vuelto: ${fmt(vuelto)}.`; }
+    else alerta.style.display='none';
+  }
+  closeModal();
+}
+
 function calcCantidadCostoAssign(idx) {
   const monto = parseFloat(document.getElementById('assign-monto-'+idx)?.value);
   const precioActual = parseFloat(document.getElementById('assign-precio-actual-'+idx)?.value) || 0;
@@ -2504,7 +2604,9 @@ function renderInversiones() {
         &nbsp;(costo $${precioCosto.toLocaleString('es-AR')} → actual $${precioActual.toLocaleString('es-AR')})
       </span>`;
     } else if (precioCosto) {
-      marginHTML = `<span style="font-size:11px;color:var(--muted);margin-left:12px">Costo: $${precioCosto.toLocaleString('es-AR')}/u &nbsp;· Actualizá el precio actual</span>`;
+      marginHTML = `<span style="font-size:11px;color:var(--muted);margin-left:12px">Costo: $${precioCosto.toLocaleString('es-AR')}/u &nbsp;· <button onclick="refreshPreciosAbiertos()" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:11px;font-family:DM Mono,monospace;padding:0">🔄 Actualizar precio</button></span>`;
+    } else {
+      marginHTML = `<span style="font-size:11px;color:var(--muted);margin-left:12px">Sin precio cargado · <button onclick="refreshPreciosAbiertos()" style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:11px;font-family:DM Mono,monospace;padding:0">🔄 Actualizar precio</button></span>`;
     }
     const rows = [...movs].sort((a,b) => b.fecha.localeCompare(a.fecha)).map(m => {
       const esVenta = m.tipo === 'venta';
@@ -3242,4 +3344,3 @@ if (dFechaEl) dFechaEl.valueAsDate = new Date();
 </div>
 </body>
 </html>
- 
