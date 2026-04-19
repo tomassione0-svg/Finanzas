@@ -3118,28 +3118,36 @@ async function exportChartsPDF() {
     const kpiEl = document.getElementById('kpi-grid');
     const kpis = kpiEl ? kpiEl.querySelectorAll('.kpi') : [];
     let yPos = 35;
-    const kpiW = (contentW - 6) / 4;
-
     pdf.setDrawColor(37, 42, 56);
     pdf.setLineWidth(0.3);
 
-    kpis.forEach((kpi, i) => {
-      const x = margin + i * (kpiW + 2);
+    // Layout KPIs: 3 per row, 2 rows if more than 3
+    const kpisArr = Array.from(kpis);
+    const cols = 3;
+    const kpiW = (contentW - (cols - 1) * 2) / cols;
+    const kpiH = 18;
+
+    kpisArr.forEach((kpi, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = margin + col * (kpiW + 2);
+      const y = yPos + row * (kpiH + 3);
       pdf.setFillColor(22, 25, 35);
-      pdf.roundedRect(x, yPos, kpiW, 18, 2, 2, 'F');
+      pdf.roundedRect(x, y, kpiW, kpiH, 2, 2, 'F');
       const label = kpi.querySelector('label')?.textContent || '';
       const value = kpi.querySelector('.value')?.textContent || '';
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
+      pdf.setFontSize(6.5);
       pdf.setTextColor(107, 116, 148);
-      pdf.text(label.toUpperCase(), x + 3, yPos + 5);
+      pdf.text(label.toUpperCase().slice(0, 22), x + 3, y + 5);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(232, 236, 244);
-      pdf.text(value.slice(0, 14), x + 3, yPos + 13);
+      pdf.text(value.slice(0, 16), x + 3, y + 13);
     });
 
-    yPos += 24;
+    const kpiRows = Math.ceil(kpisArr.length / cols);
+    yPos += kpiRows * (kpiH + 3) + 4;
 
     // ── Capture each chart canvas ──
     const chartIds = ['chart-pie', 'chart-bar', 'chart-line', 'chart-inv', 'chart-rend'];
@@ -3182,10 +3190,17 @@ async function exportChartsPDF() {
       pdf.setTextColor(232, 236, 244);
       pdf.text(chartTitles[i], x + 3, yPos + 6);
 
-      // Capture canvas as image
+      // Capture canvas at 3x resolution for crisp PDF output
       try {
-        const imgData = canvas.toDataURL('image/png', 0.92);
-        pdf.addImage(imgData, 'PNG', x + 2, yPos + 9, w - 4, chartHeights[i] - 4);
+        const scale = 3;
+        const offscreen = document.createElement('canvas');
+        offscreen.width = canvas.width * scale;
+        offscreen.height = canvas.height * scale;
+        const ctx = offscreen.getContext('2d');
+        ctx.scale(scale, scale);
+        ctx.drawImage(canvas, 0, 0);
+        const imgData = offscreen.toDataURL('image/png', 1.0);
+        pdf.addImage(imgData, 'PNG', x + 2, yPos + 9, w - 4, chartHeights[i] - 4, undefined, 'FAST');
       } catch(e) {
         pdf.setFontSize(7);
         pdf.setTextColor(107, 116, 148);
