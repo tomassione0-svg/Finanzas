@@ -813,6 +813,7 @@
             <option value="compra">Compra USD</option>
             <option value="venta">Venta USD</option>
             <option value="gasto">Gasto en USD</option>
+            <option value="estrategia1">Estrategia (1)</option>
           </select>
         </div>
         <div class="form-group">
@@ -849,7 +850,7 @@
 
 <script>
 
-const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Max2026';const FIXED_ID='00000000-0000-0000-0000-000000000001';
+const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Max2009';const FIXED_ID='00000000-0000-0000-0000-000000000001';
 async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
 function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><div style="position:relative;margin-bottom:10px"><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px 44px 14px 14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()"><button onclick="togglePass()" id="eye-btn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7494;padding:4px;display:flex;align-items:center"><svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
@@ -1689,7 +1690,11 @@ function buildPie(id, data) {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { position: 'right', labels: { color: '#6b7494', font: { family: 'DM Mono', size: 11 }, boxWidth: 12 } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtK(ctx.raw)}` } }
+        tooltip: { callbacks: { label: ctx => {
+          const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+          const pct = total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0;
+          return ` ${ctx.label}: ${fmtK(ctx.raw)} (${pct}%)`;
+        }}}
       },
       onClick: (e, els) => {
         if (!els.length) return;
@@ -2348,13 +2353,26 @@ function editResumenManual() {
 
   const overlay = document.getElementById('modal-overlay');
   overlay.innerHTML = `
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:380px;width:95%">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:95%">
       <h3 style="font-family:Syne,sans-serif;margin-bottom:16px">Editar operación</h3>
-      <div style="margin-bottom:14px">
-        <label style="font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px">Cantidad de acciones/cuotas</label>
-        <input type="number" id="edit-cant" value="${cantActual}" min="1"
-          style="width:100%;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:14px;box-sizing:border-box"
-          oninput="previewEditResumen()">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px">Cantidad de acciones</label>
+          <input type="number" id="edit-cant" value="${cantActual}" min="1"
+            style="width:100%;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:14px;box-sizing:border-box"
+            oninput="previewEditResumen()">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px">Precio actual ($)</label>
+          <input type="number" id="edit-pactual-res" value="${precio || ''}"
+            style="width:100%;background:var(--bg3);border:1px solid var(--accent3);border-radius:8px;padding:10px 12px;color:var(--accent3);font-family:DM Mono,monospace;font-size:14px;box-sizing:border-box"
+            oninput="previewEditResumen()">
+        </div>
+        <div style="grid-column:1/-1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px">Precio costo ($ por acción)</label>
+          <input type="number" id="edit-pcosto-res" value="${precio || ''}"
+            style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:14px;box-sizing:border-box">
+        </div>
       </div>
       <div id="edit-preview" style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;min-height:40px"></div>
       <div style="display:flex;gap:10px;justify-content:flex-end">
@@ -2368,7 +2386,8 @@ function editResumenManual() {
 
 function previewEditResumen() {
   const cant = parseInt(document.getElementById('edit-cant')?.value) || 0;
-  const precio = parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
+  const precio = parseFloat(document.getElementById('edit-pactual-res')?.value) ||
+                 parseFloat(document.getElementById('i-precio-actual')?.value) || 0;
   const monto = parseFloat(document.getElementById('i-monto')?.value) || 0;
   const el = document.getElementById('edit-preview');
   if (!el || !precio) return;
@@ -2378,10 +2397,12 @@ function previewEditResumen() {
   el.innerHTML = `Monto real: <strong>${fmt(montoReal)}</strong> · Vuelto: <strong style="color:${color}">${fmt(vuelto)}</strong>`;
 }
 
-function applyEditResumen(precio, monto) {
+function applyEditResumen(precioOriginal, monto) {
   const cant = parseInt(document.getElementById('edit-cant')?.value) || 0;
   if (cant <= 0) { toast('Cantidad inválida', 'error'); return; }
-  const montoReal = cant * precio;
+  const precio = parseFloat(document.getElementById('edit-pactual-res')?.value) || precioOriginal;
+  const precioCosto = parseFloat(document.getElementById('edit-pcosto-res')?.value) || precio;
+  const montoReal = cant * precioCosto;
   const vuelto = monto - montoReal;
   // Update the resumen panel
   document.getElementById('i-res-cantidad').textContent = cant.toLocaleString('es-AR');
@@ -2636,7 +2657,7 @@ function renderInversiones() {
         <td>${fmtFecha(m.fecha)}</td>
         <td>${ganLoss}</td>
         <td>
-          <button class="row-delete" onclick="editPrecioActual(${m._idx})" title="Actualizar precio actual" style="color:var(--accent3)">✎</button>
+          <button class="row-delete" onclick="editPrecioActual(${m._idx})" title="Editar inversión completa" style="color:var(--accent3)">✎</button>
           <button class="row-delete" onclick="deleteInversion(${m._idx})">✕</button>
         </td>
       </tr>`;
@@ -2661,7 +2682,7 @@ function renderInversiones() {
         <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" 
           onclick="addRescate('${activo}')">+ Rescate</button>
       </div>
-      <table style="width:100%;border-collapse:collapse">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;min-width:520px">
         <thead><tr>
           <th style="${thStyle}">Monto</th><th style="${thStyle}">Tipo</th>
           <th style="${thStyle}">Notas</th><th style="${thStyle}">P.Costo</th>
@@ -2669,7 +2690,7 @@ function renderInversiones() {
           <th style="${thStyle}">Ganancia/Pérdida</th><th></th>
         </tr></thead>
         <tbody>${rows}</tbody>
-      </table>
+      </table></div>
     </div>`;
   };
 
@@ -2758,7 +2779,7 @@ function addDolar() {
   const tipo = document.getElementById('d-tipo').value;
   const usd = parseFloat(document.getElementById('d-usd').value);
   const cotiz = parseFloat(document.getElementById('d-cotiz').value);
-  const desc = document.getElementById('d-desc').value || (tipo === 'compra' ? 'Compra USD' : tipo === 'venta' ? 'Venta USD' : 'Gasto USD');
+  const desc = document.getElementById('d-desc').value || (tipo === 'compra' ? 'Compra USD' : tipo === 'venta' ? 'Venta USD' : tipo === 'estrategia1' ? 'Estrategia (1)' : 'Gasto USD');
   if (!fecha || isNaN(usd) || usd <= 0) { toast('Completá fecha y monto USD', 'error'); return; }
   const esEntrada = tipo === 'compra';
   const montoUsd = esEntrada ? usd : -usd;
@@ -2815,8 +2836,8 @@ function editDolar(idx) {
   const d = allDolares[idx];
   if (!d) return;
   const overlay = document.getElementById('modal-overlay');
-  const tipoOpts = ['compra','venta','gasto'].map(t =>
-    `<option value="${t}" ${d.tipo===t?'selected':''}>${{compra:'💰 Compra USD',venta:'📤 Venta USD',gasto:'💸 Gasto USD'}[t]}</option>`
+  const tipoOpts = ['compra','venta','gasto','estrategia1'].map(t =>
+    `<option value="${t}" ${d.tipo===t?'selected':''}>${{compra:'💰 Compra USD',venta:'📤 Venta USD',gasto:'💸 Gasto USD',estrategia1:'📊 Estrategia (1)'}[t]}</option>`
   ).join('');
   overlay.innerHTML = `
     <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:440px;width:95%;position:relative">
@@ -2861,7 +2882,7 @@ function saveEditDolar(idx) {
   const cotiz = parseFloat(document.getElementById('ed-cotiz').value) || null;
   const descripcion = document.getElementById('ed-desc').value;
   if (!fecha || isNaN(usdRaw) || usdRaw <= 0) { toast('Completá fecha y monto', 'error'); return; }
-  const usd = tipo === 'compra' ? usdRaw : -usdRaw;
+  const usd = (tipo === 'compra' || tipo === 'estrategia1') ? usdRaw : -usdRaw;
   const ars = cotiz ? usdRaw * cotiz : d.ars;
   allDolares[idx] = { ...d, fecha, tipo, usd, cotiz, ars, descripcion };
   saveDolares();
@@ -3002,8 +3023,8 @@ function renderDolares() {
   }
 
   // KPIs
-  const totalUsd = allDolares.reduce((s, d) => s + d.usd, 0);
-  const compras = allDolares.filter(d => d.tipo === 'compra').reduce((s,d) => s + d.usd, 0);
+  const totalUsd = allDolares.reduce((s, d) => s + (d.tipo === 'estrategia1' ? Math.abs(d.usd) : d.usd), 0);
+  const compras = allDolares.filter(d => d.tipo === 'compra' || d.tipo === 'estrategia1').reduce((s,d) => s + d.usd, 0);
   const gastos = allDolares.filter(d => d.tipo === 'gasto').reduce((s,d) => s + Math.abs(d.usd), 0);
   const lastCotiz = allDolares.filter(d => d.cotiz).slice(-1)[0]?.cotiz || 0;
   const valorArs = totalUsd * lastCotiz;
@@ -3021,14 +3042,14 @@ function renderDolares() {
     return;
   }
 
-  const tipoLabel = { compra:'💰 Compra USD', venta:'📤 Venta USD', gasto:'💸 Gasto USD' };
-  const tipoClass = { compra:'ingreso', venta:'gasto', gasto:'gasto', ingreso_usd:'ingreso' };
+  const tipoLabel = { compra:'💰 Compra USD', venta:'📤 Venta USD', gasto:'💸 Gasto USD', estrategia1:'📊 Estrategia (1)' };
+  const tipoClass = { compra:'ingreso', venta:'gasto', gasto:'gasto', ingreso_usd:'ingreso', estrategia1:'ingreso' };
 
   const sorted = [...allDolares].map((d,i) => ({...d, _idx:i})).sort((a,b) => b.fecha.localeCompare(a.fecha));
 
   const rows = sorted.map(d => `
     <tr>
-      <td class="${d.usd >= 0 ? 'amount-pos' : 'amount-neg'}">U$D ${Math.abs(d.usd).toLocaleString('es-AR',{minimumFractionDigits:2})}</td>
+      <td class="${(d.usd >= 0 || d.tipo === 'estrategia1') ? 'amount-pos' : 'amount-neg'}">U$D ${Math.abs(d.usd).toLocaleString('es-AR',{minimumFractionDigits:2})}</td>
       <td><span class="badge badge-${tipoClass[d.tipo]}">${tipoLabel[d.tipo]}</span></td>
       <td>${d.descripcion}</td>
       <td>${fmtFecha(d.fecha)}</td>
