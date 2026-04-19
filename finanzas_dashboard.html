@@ -2973,6 +2973,14 @@ function registrarDolarPendiente(movIdx) {
   toast(`✓ ${usd} USD · cotiz $${cotiz} · pesos: ${fmt(arsExacto)}`, 'success');
 }
 
+async function fetchCotizOficial() {
+  try {
+    const r = await fetch('https://dolarapi.com/v1/dolares/oficial', { signal: AbortSignal.timeout(5000) });
+    const d = await r.json();
+    return d?.venta || null;
+  } catch(e) { return null; }
+}
+
 function renderDolares() {
   // ── Pending: movimientos "Compra Dólares" no registrados en allDolares ──
   const registeredMovIdxs = new Set(allDolares.filter(d => d.fromMovIdx !== undefined).map(d => d.fromMovIdx));
@@ -3027,15 +3035,22 @@ function renderDolares() {
   const compras = allDolares.filter(d => d.tipo === 'compra' || d.tipo === 'estrategia1').reduce((s,d) => s + Math.abs(d.usd), 0);
   const gastos = allDolares.filter(d => d.tipo === 'gasto').reduce((s,d) => s + Math.abs(d.usd), 0);
   const lastCotiz = allDolares.filter(d => d.cotiz).slice(-1)[0]?.cotiz || 0;
-  const valorArs = totalUsd * lastCotiz;
-
   const usdStyle = 'font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-  document.getElementById('dolar-kpis').innerHTML = `
-    <div class="kpi green"><label>Stock actual</label><div class="value" style="${usdStyle}">U$D ${totalUsd.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div><div class="sub">dólares disponibles</div></div>
-    <div class="kpi yellow"><label>Valor en pesos</label><div class="value">${fmtK(valorArs)}</div><div class="sub">${lastCotiz ? 'a $'+lastCotiz+'/USD' : 'ingresá cotización'}</div></div>
-    <div class="kpi blue"><label>Total comprado</label><div class="value" style="${usdStyle}">U$D ${compras.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">entradas históricas</div></div>
-    <div class="kpi red"><label>Total gastado</label><div class="value" style="${usdStyle}">U$D ${gastos.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">salidas históricas</div></div>
-  `;
+  const renderKpis = (cotizOficial) => {
+    const cotiz = cotizOficial || lastCotiz;
+    const valor = totalUsd * cotiz;
+    const subLabel = cotizOficial
+      ? `🟢 Oficial: $${cotizOficial.toLocaleString('es-AR')}/USD`
+      : (lastCotiz ? `a $${lastCotiz}/USD` : 'cargando...');
+    document.getElementById('dolar-kpis').innerHTML = `
+      <div class="kpi green"><label>Stock actual</label><div class="value" style="${usdStyle}">U$D ${totalUsd.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div><div class="sub">dólares disponibles</div></div>
+      <div class="kpi yellow"><label>Valor en pesos</label><div class="value">${fmtK(valor)}</div><div class="sub">${subLabel}</div></div>
+      <div class="kpi blue"><label>Total comprado</label><div class="value" style="${usdStyle}">U$D ${compras.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">entradas históricas</div></div>
+      <div class="kpi red"><label>Total gastado</label><div class="value" style="${usdStyle}">U$D ${gastos.toLocaleString('es-AR', {minimumFractionDigits:2})}</div><div class="sub">salidas históricas</div></div>
+    `;
+  };
+  renderKpis(null);
+  fetchCotizOficial().then(c => { if (c) renderKpis(c); });
 
   // Table
   if (allDolares.length === 0) {
