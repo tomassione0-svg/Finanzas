@@ -710,10 +710,11 @@
             <option value="Oro">Oro (GLD)</option>
             <option value="Nike">Nike (NKE)</option>
             <option value="Vale">Vale (VALE)</option>
+            <option value="Chevron">Chevron (CVX)</option>
             <option value="Minera">Minera</option>
             <option value="Otro">Otro (tipear abajo)</option>
           </select>
-          <input type="text" id="i-activo-custom" placeholder="Nombre del activo..." 
+          <input type="text" id="i-activo-custom" onchange="autoFetchPrice()" placeholder="Nombre del activo..." 
             style="display:none;margin-top:6px;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:13px;width:100%">
         </div>
         <div class="form-group">
@@ -850,7 +851,7 @@
 
 <script>
 
-const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Max2009';const FIXED_ID='00000000-0000-0000-0000-000000000001';
+const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
 async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
 function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><div style="position:relative;margin-bottom:10px"><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px 44px 14px 14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()"><button onclick="togglePass()" id="eye-btn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7494;padding:4px;display:flex;align-items:center"><svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
@@ -1860,61 +1861,85 @@ let allInversiones = [];
 const ACTIVOS = ['Vista Energía','Google','Facebook','Fondo E1','Geopark','Oro','Nike','Vale','Minera','Otro'];
 const TICKER_MAP = {
   'Vista Energía': 'VIST.BA',
-  'Google': 'GOOGL.BA',
-  'Facebook': 'META.BA',
-  'Geopark': 'GPRK.BA',
-  'Oro': 'GLD.BA',
-  'Nike': 'NKE.BA',
-  'Vale': 'VALE.BA'
+  'Google':        'GOOGL.BA',
+  'Facebook':      'META.BA',
+  'Geopark':       'GPRK.BA',
+  'Oro':           'GLD.BA',
+  'Nike':          'NKE.BA',
+  'Vale':          'VALE.BA',
+  'Chevron':       'CVX.BA'
+};
+
+// Símbolos BYMA (mercado argentino) para cada activo
+const BYMA_MAP = {
+  'Vista Energía': 'VIST',
+  'Google':        'GOOGL',
+  'Facebook':      'META',
+  'Geopark':       'GPRK',
+  'Oro':           'GLD',
+  'Nike':          'NKE',
+  'Vale':          'VALE',
+  'Chevron':       'CVX'
 };
 
 async function fetchTickerPrice(activo) {
-  const ticker = TICKER_MAP[activo];
-  if (!ticker) return null;
-  
-  // Try multiple approaches
-  const attempts = [
-    // 1. Stooq (no CORS issues, works for US tickers)
-    async () => {
-      const r = await fetch(`https://stooq.com/q/l/?s=${ticker.toLowerCase()}.us&f=sd2t2ohlcv&h&e=json`, 
-        { signal: AbortSignal.timeout(5000) });
+  // Si está en el mapa, usar ese ticker; sino intentar con el nombre directo
+  const ticker = TICKER_MAP[activo] || (activo.toUpperCase() + '.BA');
+  const byma = BYMA_MAP[activo] || activo.toUpperCase();
+
+  const parseYahoo = (raw) => {
+    try {
+      const body = raw?.contents ? JSON.parse(raw.contents) : raw;
+      const meta = body?.chart?.result?.[0]?.meta;
+      const p = meta?.regularMarketPrice || meta?.chartPreviousClose || meta?.previousClose;
+      return p && p > 0 ? Math.round(p * 100) / 100 : null;
+    } catch(e) { return null; }
+  };
+
+  const yUrls = [
+    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5d`,
+    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1mo`,
+  ];
+  const proxies = [
+    u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
+  ];
+
+  // Intentar todos los proxies × todas las URLs de Yahoo en paralelo por tanda
+  for (const proxyFn of proxies) {
+    // Intentar las 3 URLs en paralelo con este proxy
+    const results = await Promise.allSettled(
+      yUrls.map(u => fetch(proxyFn(u), { signal: AbortSignal.timeout(7000) })
+        .then(r => r.json())
+        .then(raw => parseYahoo(raw))
+      )
+    );
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value && r.value > 0) return r.value;
+    }
+  }
+
+  // Fallback: Stooq sufijos para Argentina
+  const t = (byma || ticker.replace('.BA','')).toLowerCase();
+  for (const suffix of ['.ar', '.b', '.ba']) {
+    try {
+      const r = await fetch(`https://stooq.com/q/l/?s=${t}${suffix}&f=sd2t2ohlcv&h&e=json`,
+        { signal: AbortSignal.timeout(6000) });
       const d = await r.json();
       const price = d?.symbols?.[0]?.close || d?.symbols?.[0]?.open;
-      return price ? parseFloat(price) : null;
-    },
-    // 2. Yahoo via allorigins
-    async () => {
-      const url = `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}`;
-      const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, 
-        { signal: AbortSignal.timeout(7000) });
-      const raw = await r.json();
-      const body = raw.contents ? JSON.parse(raw.contents) : raw;
-      const price = body?.chart?.result?.[0]?.meta?.regularMarketPrice;
-      return price ? Math.round(price * 100) / 100 : null;
-    },
-    // 3. Yahoo v10 via corsproxy
-    async () => {
-      const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price`;
-      const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, 
-        { signal: AbortSignal.timeout(7000) });
-      const d = await r.json();
-      const price = d?.quoteSummary?.result?.[0]?.price?.regularMarketPrice?.raw;
-      return price ? Math.round(price * 100) / 100 : null;
-    }
-  ];
-  
-  for (const attempt of attempts) {
-    try {
-      const price = await attempt();
-      if (price && price > 0) return price;
+      if (price && parseFloat(price) > 0) return parseFloat(price);
     } catch(e) { continue; }
   }
+
   return null;
 }
 const ACTIVO_COLORS = {
   'Vista Energía':'#4cc9f0','Google':'#ffd166','Facebook':'#4361ee',
   'Fondo E1':'#00e5a0','Geopark':'#f72585','Oro':'#ffd166',
-  'Nike':'#ff6b6b','Vale':'#7209b7','Minera':'#06d6a0','Otro':'#6b7494'
+  'Nike':'#ff6b6b','Vale':'#7209b7','Minera':'#06d6a0','Otro':'#6b7494','Chevron':'#00b4d8'
 };
 
 function loadInversionesFromStorage() {
@@ -2441,9 +2466,14 @@ function calcCantidadCostoAssign(idx) {
 async function autoFetchPrice() {
   const sel = document.getElementById('i-activo');
   if (!sel) return;
-  const activo = sel.value;
-  const ticker = TICKER_MAP[activo];
-  if (!ticker) return;
+  let activo = sel.value;
+  // Si eligió "Otro", usar lo que escribió en el campo custom
+  if (activo === 'Otro') {
+    const custom = document.getElementById('i-activo-custom');
+    activo = custom?.value?.trim() || '';
+  }
+  if (!activo) return;
+  const ticker = TICKER_MAP[activo] || (activo.toUpperCase() + '.BA');
   const priceEl = document.getElementById('i-precio-actual');
   if (!priceEl) return;
   priceEl.placeholder = `⏳ Buscando ${ticker}...`;
@@ -2456,28 +2486,32 @@ async function autoFetchPrice() {
     toast(`✓ ${ticker}: $${price.toLocaleString('es-AR')} ARS`, 'success');
     calcCantidadCosto();
   } else {
-    priceEl.placeholder = `${ticker} — mercado cerrado o sin datos`;
-    toast(`No se pudo obtener ${ticker}. Ingresá manualmente.`, 'error');
+    priceEl.placeholder = `Sin datos — ingresá manualmente`;
+    toast(`No se pudo obtener precio de ${ticker}. Ingresá manualmente.`, 'error');
   }
 }
 
 async function fetchAndFillPrice(idx) {
   const sel = document.getElementById(`assign-activo-${idx}`);
   if (!sel) return;
-  const activo = sel.value;
-  const ticker = TICKER_MAP[activo];
+  let activo = sel.value;
+  if (activo === 'Otro') {
+    const custom = document.getElementById(`assign-activo-custom-${idx}`);
+    activo = custom?.value?.trim() || '';
+  }
+  if (!activo) return;
+  const ticker = TICKER_MAP[activo] || (activo.toUpperCase() + '.BA');
   const el = document.getElementById(`assign-precio-actual-${idx}`);
   if (!el) return;
-  if (!ticker) { el.placeholder = 'Sin ticker — ingresá manualmente'; return; }
-  el.placeholder = `⏳ ${ticker}...`;
+  el.placeholder = `⏳ Buscando ${ticker}...`;
   const price = await fetchTickerPrice(activo);
   if (price) {
     el.value = price;
     toast(`✓ ${ticker}: $${price.toLocaleString('es-AR')} ARS`, 'success');
     calcCantidadCostoAssign(idx);
   } else {
-    el.placeholder = `${ticker} — mercado cerrado`;
-    toast(`Mercado cerrado o sin acceso para ${ticker}`, 'error');
+    el.placeholder = `Sin datos — ingresá manualmente`;
+    toast(`No se pudo obtener precio de ${ticker}. Ingresá manualmente.`, 'error');
   }
 }
 function deleteInversion(idx) {
