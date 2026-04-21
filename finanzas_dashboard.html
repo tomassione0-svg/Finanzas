@@ -1883,55 +1883,50 @@ const BYMA_MAP = {
 };
 
 async function fetchTickerPrice(activo) {
-  // Si está en el mapa, usar ese ticker; sino intentar con el nombre directo
-  const ticker = TICKER_MAP[activo] || (activo.toUpperCase() + '.BA');
+  const tickerMapped = TICKER_MAP[activo];
   const byma = BYMA_MAP[activo] || activo.toUpperCase();
+  const ticker = tickerMapped || (activo.toUpperCase() + '.BA');
 
   const parseYahoo = (raw) => {
     try {
-      const body = raw?.contents ? JSON.parse(raw.contents) : raw;
+      const body = typeof raw?.contents === 'string' ? JSON.parse(raw.contents) : raw;
       const meta = body?.chart?.result?.[0]?.meta;
       const p = meta?.regularMarketPrice || meta?.chartPreviousClose || meta?.previousClose;
-      return p && p > 0 ? Math.round(p * 100) / 100 : null;
+      return (p && p > 0) ? Math.round(p * 100) / 100 : null;
     } catch(e) { return null; }
   };
 
-  const yUrls = [
-    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`,
-    `https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5d`,
-    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1mo`,
-  ];
-  const proxies = [
-    u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-    u => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
+  // Todos los intentos en paralelo — toma el primero que responde
+  const allAttempts = [
+    // Yahoo directo (a veces funciona sin CORS desde AR)
+    () => fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5d`, { signal: AbortSignal.timeout(6000) })
+      .then(r => r.ok ? r.json() : null).then(d => parseYahoo(d)),
+    () => fetch(`https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5d`, { signal: AbortSignal.timeout(6000) })
+      .then(r => r.ok ? r.json() : null).then(d => parseYahoo(d)),
+    // allorigins
+    () => fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+ticker+'?interval=1d&range=5d')}`, { signal: AbortSignal.timeout(8000) })
+      .then(r => r.json()).then(d => parseYahoo(d)),
+    // corsproxy
+    () => fetch(`https://corsproxy.io/?${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+ticker+'?interval=1d&range=5d')}`, { signal: AbortSignal.timeout(8000) })
+      .then(r => r.json()).then(d => parseYahoo(d)),
+    // codetabs
+    () => fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+ticker+'?interval=1d&range=5d')}`, { signal: AbortSignal.timeout(8000) })
+      .then(r => r.json()).then(d => parseYahoo(d)),
+    // Stooq .ar
+    () => fetch(`https://stooq.com/q/l/?s=${byma.toLowerCase()}.ar&f=sd2t2ohlcv&h&e=json`, { signal: AbortSignal.timeout(6000) })
+      .then(r => r.json()).then(d => { const p = d?.symbols?.[0]?.close || d?.symbols?.[0]?.open; return (p && parseFloat(p) > 0) ? parseFloat(p) : null; }),
+    // Stooq .b
+    () => fetch(`https://stooq.com/q/l/?s=${byma.toLowerCase()}.b&f=sd2t2ohlcv&h&e=json`, { signal: AbortSignal.timeout(6000) })
+      .then(r => r.json()).then(d => { const p = d?.symbols?.[0]?.close || d?.symbols?.[0]?.open; return (p && parseFloat(p) > 0) ? parseFloat(p) : null; }),
   ];
 
-  // Intentar todos los proxies × todas las URLs de Yahoo en paralelo por tanda
-  for (const proxyFn of proxies) {
-    // Intentar las 3 URLs en paralelo con este proxy
-    const results = await Promise.allSettled(
-      yUrls.map(u => fetch(proxyFn(u), { signal: AbortSignal.timeout(7000) })
-        .then(r => r.json())
-        .then(raw => parseYahoo(raw))
-      )
-    );
-    for (const r of results) {
-      if (r.status === 'fulfilled' && r.value && r.value > 0) return r.value;
-    }
-  }
+  // Correr todos en paralelo y tomar el primero con precio válido
+  const results = await Promise.allSettled(allAttempts.map(fn => {
+    try { return fn(); } catch(e) { return Promise.resolve(null); }
+  }));
 
-  // Fallback: Stooq sufijos para Argentina
-  const t = (byma || ticker.replace('.BA','')).toLowerCase();
-  for (const suffix of ['.ar', '.b', '.ba']) {
-    try {
-      const r = await fetch(`https://stooq.com/q/l/?s=${t}${suffix}&f=sd2t2ohlcv&h&e=json`,
-        { signal: AbortSignal.timeout(6000) });
-      const d = await r.json();
-      const price = d?.symbols?.[0]?.close || d?.symbols?.[0]?.open;
-      if (price && parseFloat(price) > 0) return parseFloat(price);
-    } catch(e) { continue; }
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value && r.value > 0) return r.value;
   }
 
   return null;
