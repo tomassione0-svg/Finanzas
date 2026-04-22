@@ -744,6 +744,10 @@
           <label>Notas adicionales (opcional)</label>
           <input type="text" id="i-notas" placeholder="ej: compra en lote">
         </div>
+        <div class="form-group full inv-field-comision" style="display:none">
+          <label>Descripción</label>
+          <input type="text" id="i-desc-comision" placeholder="ej: comisión trimestral Balanz">
+        </div>
       </div>
 
       <!-- Panel de resumen de compra — igual que en asignación automática -->
@@ -853,7 +857,7 @@
 
 <script>
 
-const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Max2009';const FIXED_ID='00000000-0000-0000-0000-000000000001';
+const SUPA_URL='https://eszmxvkzywbnnebbwstc.supabase.co';const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzem14dmt6eXdibm5lYmJ3c3RjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDYzMDIsImV4cCI6MjA5MTY4MjMwMn0.weIkm2SNh48IhY3fIfrZkFSsTAZ039v_4dKZnSPcv6o';const APP_PASS='Ines2024';const FIXED_ID='00000000-0000-0000-0000-000000000001';
 async function supaFetch(table,method='GET',body=null,filter=''){const url=SUPA_URL+'/rest/v1/'+table+(filter?'?'+filter:'');const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'resolution=merge-duplicates,return=minimal':''}};if(body!==null)opts.body=JSON.stringify(body);const r=await fetch(url,opts);if(method==='GET'){try{return await r.json();}catch(e){return[];}}return r.ok;}
 function checkAuth(){if(!sessionStorage.getItem('mf_auth'))showLoginScreen();}
 function showLoginScreen(){document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0d0f14;font-family:'DM Mono',monospace"><div style="background:#161923;border:1px solid #252a38;border-radius:20px;padding:48px 40px;width:320px;text-align:center"><div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#e8ecf4,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">mis$</div><p style="color:#6b7494;font-size:13px;margin-bottom:32px">Dashboard financiero privado</p><div style="position:relative;margin-bottom:10px"><input id="lp" type="password" placeholder="Contraseña" autofocus style="width:100%;background:#1a1e28;border:1px solid #252a38;border-radius:10px;padding:14px 44px 14px 14px;color:#e8ecf4;font-family:'DM Mono',monospace;font-size:14px;outline:none;box-sizing:border-box" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()"><button onclick="togglePass()" id="eye-btn" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7494;padding:4px;display:flex;align-items:center"><svg id="eye-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div><div id="le" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:10px"></div><button onclick="doLogin()" style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;cursor:pointer">Entrar</button></div></div>`;}
@@ -1962,6 +1966,7 @@ function addInversion() {
   const precio = parseFloat(document.getElementById('i-precio-manual').value) || null;
   const precioActual = parseFloat(document.getElementById('i-precio-actual').value) || null;
   const notas = document.getElementById('i-notas').value;
+  const descComision = document.getElementById('i-desc-comision')?.value?.trim() || '';
 
   if (!fecha || isNaN(montoDisponible) || montoDisponible <= 0) {
     toast('Completá fecha y monto', 'error'); return;
@@ -1987,6 +1992,7 @@ function addInversion() {
     precioCosto: precio,
     precioActual: precioActual || precio,
     notas: notasFinal,
+    descripcion: tipo === 'comision' ? descComision : '',
     cantidad
   });
   saveInversiones();
@@ -2002,6 +2008,7 @@ function addInversion() {
   // Reset form
   document.getElementById('i-monto').value = '';
   document.getElementById('i-notas').value = '';
+  const _dc = document.getElementById('i-desc-comision'); if(_dc) _dc.value = '';
   document.getElementById('i-precio-manual').value = '';
   document.getElementById('i-precio-actual').value = '';
   document.getElementById('i-monto-real').value = '';
@@ -2323,15 +2330,14 @@ function confirmRescate(activo, costoBase) {
 
 function onTipoChange() {
   const tipo = document.getElementById('i-tipo')?.value;
-  const camposExtra = ['i-activo', 'i-precio-actual', 'i-notas'];
-  const labelPrecio = document.querySelector('label[for="i-precio-actual"]');
   const resumen = document.getElementById('i-resumen');
   if (tipo === 'comision') {
-    // Solo mostrar monto — ocultar todo lo demás
     document.querySelectorAll('.inv-field-extra').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.inv-field-comision').forEach(el => el.style.display = '');
     if (resumen) resumen.style.display = 'none';
   } else {
     document.querySelectorAll('.inv-field-extra').forEach(el => el.style.display = '');
+    document.querySelectorAll('.inv-field-comision').forEach(el => el.style.display = 'none');
     calcCantidadCosto();
   }
 }
@@ -2373,6 +2379,12 @@ function calcCantidadCosto() {
   const tipo = document.getElementById('i-tipo')?.value || 'compra';
   const resumen = document.getElementById('i-resumen');
   const resMontoReal = document.getElementById('i-monto-real');
+
+  // Si es comision, solo ocultar el resumen y salir
+  if (tipo === 'comision') {
+    if (resumen) resumen.style.display = 'none';
+    return;
+  }
 
   // Hide panel if missing data
   if (!monto || monto <= 0 || !precio || precio <= 0) {
@@ -2632,7 +2644,7 @@ function renderInversiones() {
   // KPIs
   const totalInv = allInversiones.filter(i => i.tipo === 'compra').reduce((s,i) => s + i.monto, 0);
   const totalRescates = allInversiones.filter(i => i.tipo === 'venta').reduce((s,i) => s + Math.abs(i.monto), 0);
-  const totalComisiones = allInversiones.filter(i => i.tipo === 'comision').reduce((s,i) => s + i.monto, 0);
+  const totalComisiones = allInversiones.filter(i => i.tipo === 'comision').reduce((s,i) => s + Math.abs(i.monto), 0);
   const neto = totalInv - totalRescates;
   const actCount = new Set(allInversiones.filter(i => i.tipo !== 'comision').map(i => i.activo)).size;
 
@@ -2790,7 +2802,7 @@ function renderInversiones() {
     const thS = 'text-align:left;padding:8px 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px';
     const comRows = [...comisiones].sort((a,b) => b.fecha.localeCompare(a.fecha)).map(c => `
       <tr>
-        <td class="amount-neg" style="white-space:nowrap">${fmt(c.monto)}</td>
+        <td class="amount-neg" style="white-space:nowrap">${fmt(Math.abs(c.monto))}</td>
         <td><span class="badge badge-gasto" style="white-space:nowrap">Comisión</span></td>
         <td style="color:var(--muted);font-size:11px">${c.descripcion || c.notas || '—'}</td>
         <td style="white-space:nowrap">${fmtFecha(c.fecha)}</td>
