@@ -82,6 +82,7 @@
   /* MAIN */
   main { padding: 24px 20px; max-width: 1400px; margin: 0 auto; }
   @media (max-width: 600px) { main { padding: 16px 12px; } nav { padding: 10px 12px; } .nav-tabs { gap: 4px; } .tab-btn { padding: 6px 10px; font-size: 11px; } }
+  @media (min-width: 601px) { #inv-kpis { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important; } }
 
   /* SECTION */
   .section { display: none; }
@@ -685,7 +686,7 @@
       <p>Asigná tus transferencias a Balanz a cada activo y seguí tu portfolio</p>
     </div>
 
-    <div id="inv-kpis" style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;justify-content:center"></div>
+    <div id="inv-kpis" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px"></div>
 
     <!-- Asignar transferencia a activo -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -796,7 +797,7 @@
     </div>
 
     <!-- KPIs dólares -->
-    <div id="dolar-kpis" style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;justify-content:center"></div>
+    <div id="dolar-kpis" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px"></div>
 
     <!-- Formulario -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -2646,17 +2647,16 @@ function renderInversiones() {
   const glPct = costoPrecio > 0 ? (glTotal/costoPrecio*100).toFixed(1) : null;
   const glColor = glTotal >= 0 ? 'var(--accent)' : 'var(--accent2)';
 
-  const kpiStyle = 'flex:1 1 180px;max-width:220px;min-width:150px';
   document.getElementById('inv-kpis').innerHTML = `
-    <div class="kpi blue" style="${kpiStyle}"><label>Total invertido</label><div class="value">${fmtK(totalInv)}</div><div class="sub">capital aportado</div></div>
-    <div class="kpi green" style="${kpiStyle}"><label>Rescates</label><div class="value">${fmtK(totalRescates)}</div><div class="sub">capital retirado</div></div>
-    <div class="kpi yellow" style="${kpiStyle}"><label>Neto en mercado</label><div class="value">${fmtK(neto)}</div><div class="sub">invertido − rescatado</div></div>
-    <div class="kpi" style="${kpiStyle};border-top:2px solid ${glColor}">
+    <div class="kpi blue"><label>Total invertido</label><div class="value">${fmtK(totalInv)}</div><div class="sub">capital aportado</div></div>
+    <div class="kpi green"><label>Rescates</label><div class="value">${fmtK(totalRescates)}</div><div class="sub">capital retirado</div></div>
+    <div class="kpi yellow"><label>Neto en mercado</label><div class="value">${fmtK(neto)}</div><div class="sub">invertido − rescatado</div></div>
+    <div class="kpi" style="border-top:2px solid ${glColor}">
       <label>G/L cartera</label>
       <div class="value" style="color:${glColor}">${glTotal >= 0 ? '+' : ''}${fmtK(glTotal)}</div>
       <div class="sub">${glPct !== null ? `${glTotal >= 0 ? '+' : ''}${glPct}% sobre costo` : 'Cargá precios para ver'}</div>
     </div>
-    ${totalComisiones > 0 ? `<div class="kpi red" style="${kpiStyle}"><label>Comisiones</label><div class="value">${fmtK(totalComisiones)}</div></div>` : ''}
+    ${totalComisiones > 0 ? `<div class="kpi red"><label>Comisiones</label><div class="value">${fmtK(totalComisiones)}</div></div>` : ''}
   `;
 
   // Portfolio by activo
@@ -2666,7 +2666,7 @@ function renderInversiones() {
     return;
   }
 
-  // Group by activo
+  // Group by activo — comisiones go to their own section
   const byActivo = {};
   const comisiones = [];
   allInversiones.forEach((inv, idx) => {
@@ -2785,32 +2785,33 @@ function renderInversiones() {
     html2 += `<h3 style="font-family:Syne,sans-serif;margin:24px 0 16px;color:var(--muted)">✅ Operaciones cerradas</h3>`;
     html2 += cerradas.map(d => makeCard(d, true)).join('');
   }
-  // Comisiones: own section, clean, no subtitles
+  // Comisiones: sección propia, tabla scrolleable igual que posiciones
   if (comisiones.length) {
-    const totalCom = comisiones.reduce((s,c) => s + c.monto, 0);
     const thS = 'text-align:left;padding:8px 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px';
     const comRows = [...comisiones].sort((a,b) => b.fecha.localeCompare(a.fecha)).map(c => `
       <tr>
-        <td class="amount-neg">${fmt(c.monto)}</td>
-        <td><span class="badge badge-gasto">Comisión</span></td>
+        <td class="amount-neg" style="white-space:nowrap">${fmt(c.monto)}</td>
+        <td><span class="badge badge-gasto" style="white-space:nowrap">Comisión</span></td>
         <td style="color:var(--muted);font-size:11px">${c.descripcion || c.notas || '—'}</td>
-        <td>${c.fecha}</td>
+        <td style="white-space:nowrap">${fmtFecha(c.fecha)}</td>
         <td><button class="row-delete" onclick="deleteInversion(${c._idx})">✕</button></td>
       </tr>`).join('');
     html2 += `
       <h3 style="font-family:Syne,sans-serif;margin:24px 0 16px;color:var(--muted)">💸 Comisiones</h3>
       <div class="chart-card" style="margin-bottom:16px;border-left:3px solid var(--accent2)">
         <h3 style="color:var(--accent2);margin-bottom:12px">Comisiones Balanz</h3>
-        <table style="width:100%;border-collapse:collapse">
-          <thead><tr>
-            <th style="${thS}">Monto</th>
-            <th style="${thS}">Tipo</th>
-            <th style="${thS}">Descripción</th>
-            <th style="${thS}">Fecha</th>
-            <th></th>
-          </tr></thead>
-          <tbody>${comRows}</tbody>
-        </table>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <table style="width:100%;border-collapse:collapse;min-width:400px">
+            <thead><tr>
+              <th style="${thS}">Monto</th>
+              <th style="${thS}">Tipo</th>
+              <th style="${thS}">Descripción</th>
+              <th style="${thS}">Fecha</th>
+              <th></th>
+            </tr></thead>
+            <tbody>${comRows}</tbody>
+          </table>
+        </div>
       </div>`;
   }
 
