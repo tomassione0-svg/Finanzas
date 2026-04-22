@@ -685,7 +685,7 @@
       <p>Asigná tus transferencias a Balanz a cada activo y seguí tu portfolio</p>
     </div>
 
-    <div id="inv-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
+    <div id="inv-kpis" style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;justify-content:center"></div>
 
     <!-- Asignar transferencia a activo -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -699,7 +699,7 @@
           <label>Fecha</label>
           <input type="date" id="i-fecha">
         </div>
-        <div class="form-group">
+        <div class="form-group inv-field-extra">
           <label>Activo</label>
           <select id="i-activo" onchange="toggleCustomActivo(); autoFetchPrice()">
             <option value="Vista Energía">Vista Energía (VIST)</option>
@@ -719,16 +719,17 @@
         </div>
         <div class="form-group">
           <label>Tipo</label>
-          <select id="i-tipo" onchange="calcCantidadCosto()">
+          <select id="i-tipo" onchange="onTipoChange()">
             <option value="compra">Compra</option>
             <option value="venta">Venta / Rescate</option>
+            <option value="comision">💸 Gasto por comisión</option>
           </select>
         </div>
         <div class="form-group">
           <label>Monto disponible ($)</label>
           <input type="number" id="i-monto" placeholder="ej: 150000" oninput="calcCantidadCosto()">
         </div>
-        <div class="form-group">
+        <div class="form-group inv-field-extra">
           <label style="display:flex;align-items:center;gap:6px">
             Precio por acción/cuota ($)
             <button onclick="autoFetchPrice()" title="Actualizar precio desde el mercado"
@@ -738,7 +739,7 @@
           </label>
           <input type="number" id="i-precio-actual" placeholder="Se trae automático" oninput="calcCantidadCosto()" style="border-color:var(--border)">
         </div>
-        <div class="form-group full">
+        <div class="form-group full inv-field-extra">
           <label>Notas adicionales (opcional)</label>
           <input type="text" id="i-notas" placeholder="ej: compra en lote">
         </div>
@@ -795,7 +796,7 @@
     </div>
 
     <!-- KPIs dólares -->
-    <div id="dolar-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;max-width:900px;margin-left:auto;margin-right:auto"></div>
+    <div id="dolar-kpis" style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;justify-content:center"></div>
 
     <!-- Formulario -->
     <div class="manual-form" style="margin-bottom:28px">
@@ -2022,24 +2023,32 @@ function assignTransferencia(idx) {
       </p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
         <div>
-          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Activo</label>
-          <select id="assign-activo-${idx}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
-            ${activoOpts}
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Tipo</label>
+          <select id="assign-tipo-${idx}" onchange="onAssignTipoChange(${idx})" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
+            <option value="compra">Compra</option>
+            <option value="venta">Venta / Rescate</option>
+            <option value="comision">💸 Gasto por comisión</option>
           </select>
-          <input type="text" id="assign-activo-custom-${idx}" placeholder="Nombre del activo..." 
-            style="display:none;margin-top:6px;width:100%;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
         </div>
         <div>
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Monto a asignar ($)</label>
           <input type="number" id="assign-monto-${idx}" value="${totalDisponible}" oninput="calcCantidadCostoAssign(${idx})" 
             style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
         </div>
-        <div>
+        <div id="assign-activo-row-${idx}">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Activo</label>
+          <select id="assign-activo-${idx}" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
+            ${activoOpts}
+          </select>
+          <input type="text" id="assign-activo-custom-${idx}" placeholder="Ticker del CEDEAR (ej: AAPL, MSFT)" 
+            style="display:none;margin-top:6px;width:100%;background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
+        </div>
+        <div id="assign-precio-row-${idx}">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Precio costo (por acción/cuota)</label>
           <input type="number" id="assign-precio-${idx}" placeholder="ej: 5000" 
             style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
         </div>
-        <div>
+        <div id="assign-precio-actual-row-${idx}">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Precio actual (auto o manual)</label>
           <div style="display:flex;gap:6px">
             <input type="number" id="assign-precio-actual-${idx}" placeholder="ej: 6000" oninput="calcCantidadCostoAssign(${idx})" 
@@ -2047,7 +2056,7 @@ function assignTransferencia(idx) {
             <button onclick="fetchAndFillPrice(${idx})" style="background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;color:var(--accent);font-size:11px;cursor:pointer;white-space:nowrap">🔄 Auto</button>
           </div>
         </div>
-        <div>
+        <div id="assign-notas-row-${idx}">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Notas</label>
           <input type="text" id="assign-notas-${idx}" placeholder="ej: 10 acciones" 
             style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:DM Mono,monospace;font-size:12px">
@@ -2087,13 +2096,37 @@ function defaultModalHTML() {
   </div>`;
 }
 
+function onAssignTipoChange(idx) {
+  const tipo = document.getElementById('assign-tipo-'+idx)?.value;
+  const extras = ['assign-activo-row-'+idx,'assign-precio-row-'+idx,'assign-precio-actual-row-'+idx,'assign-notas-row-'+idx];
+  extras.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = tipo === 'comision' ? 'none' : '';
+  });
+}
+
 function confirmAssign(idx) {
   const mov = allMovs[idx];
   if (!mov) return;
+  const tipoSel = document.getElementById('assign-tipo-'+idx)?.value || 'compra';
+
+  // Comisión: solo monto
+  if (tipoSel === 'comision') {
+    const montoC = parseFloat(document.getElementById('assign-monto-'+idx)?.value);
+    if (isNaN(montoC) || montoC <= 0) { toast('Ingresá el monto de la comisión', 'error'); return; }
+    allInversiones.push({ id: Date.now()+Math.random(), fecha: mov.fecha, tipo: 'comision',
+      monto: montoC, activo: 'Comisión', descripcion: 'Gasto por comisión Balanz', notas: 'Comisión',
+      precioCosto: null, precioActual: null, fromMovIdx: idx });
+    allMovs[idx].asignadoTotal = (allMovs[idx].asignadoTotal || 0) + montoC;
+    if (allMovs[idx].asignadoTotal >= Math.abs(mov.monto) - 1) allMovs[idx].asignada = true;
+    saveInversiones(); saveToStorage(); renderInversiones(); closeModal();
+    toast('✓ Comisión registrada', 'success'); return;
+  }
+
   const sel = document.getElementById(`assign-activo-${idx}`);
-  let activo = sel.value;
+  let activo = sel?.value || '';
   if (activo === 'Otro') {
-    activo = document.getElementById(`assign-activo-custom-${idx}`).value.trim() || 'Otro';
+    activo = document.getElementById(`assign-activo-custom-${idx}`)?.value.trim() || 'Otro';
   }
   const montoInput = parseFloat(document.getElementById(`assign-monto-${idx}`).value);
   const precio = parseFloat(document.getElementById(`assign-precio-${idx}`).value) || null;
@@ -2285,6 +2318,21 @@ function confirmRescate(activo, costoBase) {
   closeAssignModal();
   renderInversiones();
   toast(`✓ Rescate ${fmt(val)} · ${glTxt}`, 'success');
+}
+
+function onTipoChange() {
+  const tipo = document.getElementById('i-tipo')?.value;
+  const camposExtra = ['i-activo', 'i-precio-actual', 'i-notas'];
+  const labelPrecio = document.querySelector('label[for="i-precio-actual"]');
+  const resumen = document.getElementById('i-resumen');
+  if (tipo === 'comision') {
+    // Solo mostrar monto — ocultar todo lo demás
+    document.querySelectorAll('.inv-field-extra').forEach(el => el.style.display = 'none');
+    if (resumen) resumen.style.display = 'none';
+  } else {
+    document.querySelectorAll('.inv-field-extra').forEach(el => el.style.display = '');
+    calcCantidadCosto();
+  }
 }
 
 function toggleCustomActivo() {
@@ -2583,8 +2631,9 @@ function renderInversiones() {
   // KPIs
   const totalInv = allInversiones.filter(i => i.tipo === 'compra').reduce((s,i) => s + i.monto, 0);
   const totalRescates = allInversiones.filter(i => i.tipo === 'venta').reduce((s,i) => s + Math.abs(i.monto), 0);
+  const totalComisiones = allInversiones.filter(i => i.tipo === 'comision').reduce((s,i) => s + i.monto, 0);
   const neto = totalInv - totalRescates;
-  const actCount = new Set(allInversiones.map(i => i.activo)).size;
+  const actCount = new Set(allInversiones.filter(i => i.tipo !== 'comision').map(i => i.activo)).size;
 
   // Calculate portfolio margin if prices available
   const invConPrecio = allInversiones.filter(i => i.tipo === 'compra' && i.precioCosto && i.precioActual);
@@ -2597,15 +2646,17 @@ function renderInversiones() {
   const glPct = costoPrecio > 0 ? (glTotal/costoPrecio*100).toFixed(1) : null;
   const glColor = glTotal >= 0 ? 'var(--accent)' : 'var(--accent2)';
 
+  const kpiStyle = 'flex:1 1 180px;max-width:220px;min-width:150px';
   document.getElementById('inv-kpis').innerHTML = `
-    <div class="kpi blue"><label>Total invertido</label><div class="value">${fmtK(totalInv)}</div><div class="sub">capital aportado</div></div>
-    <div class="kpi green"><label>Rescates</label><div class="value">${fmtK(totalRescates)}</div><div class="sub">capital retirado</div></div>
-    <div class="kpi yellow"><label>Neto en mercado</label><div class="value">${fmtK(neto)}</div><div class="sub">invertido − rescatado</div></div>
-    <div class="kpi" style="border-top:2px solid ${glColor}">
+    <div class="kpi blue" style="${kpiStyle}"><label>Total invertido</label><div class="value">${fmtK(totalInv)}</div><div class="sub">capital aportado</div></div>
+    <div class="kpi green" style="${kpiStyle}"><label>Rescates</label><div class="value">${fmtK(totalRescates)}</div><div class="sub">capital retirado</div></div>
+    <div class="kpi yellow" style="${kpiStyle}"><label>Neto en mercado</label><div class="value">${fmtK(neto)}</div><div class="sub">invertido − rescatado</div></div>
+    <div class="kpi" style="${kpiStyle};border-top:2px solid ${glColor}">
       <label>G/L cartera</label>
       <div class="value" style="color:${glColor}">${glTotal >= 0 ? '+' : ''}${fmtK(glTotal)}</div>
       <div class="sub">${glPct !== null ? `${glTotal >= 0 ? '+' : ''}${glPct}% sobre costo` : 'Cargá precios para ver'}</div>
     </div>
+    ${totalComisiones > 0 ? `<div class="kpi red" style="${kpiStyle}"><label>Comisiones</label><div class="value">${fmtK(totalComisiones)}</div></div>` : ''}
   `;
 
   // Portfolio by activo
@@ -2617,7 +2668,9 @@ function renderInversiones() {
 
   // Group by activo
   const byActivo = {};
+  const comisiones = [];
   allInversiones.forEach((inv, idx) => {
+    if (inv.tipo === 'comision') { comisiones.push({...inv, _idx: idx}); return; }
     if (!byActivo[inv.activo]) byActivo[inv.activo] = [];
     byActivo[inv.activo].push({...inv, _idx: idx});
   });
@@ -2732,6 +2785,35 @@ function renderInversiones() {
     html2 += `<h3 style="font-family:Syne,sans-serif;margin:24px 0 16px;color:var(--muted)">✅ Operaciones cerradas</h3>`;
     html2 += cerradas.map(d => makeCard(d, true)).join('');
   }
+  // Comisiones: own section, clean, no subtitles
+  if (comisiones.length) {
+    const totalCom = comisiones.reduce((s,c) => s + c.monto, 0);
+    const thS = 'text-align:left;padding:8px 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px';
+    const comRows = [...comisiones].sort((a,b) => b.fecha.localeCompare(a.fecha)).map(c => `
+      <tr>
+        <td class="amount-neg">${fmt(c.monto)}</td>
+        <td><span class="badge badge-gasto">Comisión</span></td>
+        <td style="color:var(--muted);font-size:11px">${c.descripcion || c.notas || '—'}</td>
+        <td>${c.fecha}</td>
+        <td><button class="row-delete" onclick="deleteInversion(${c._idx})">✕</button></td>
+      </tr>`).join('');
+    html2 += `
+      <h3 style="font-family:Syne,sans-serif;margin:24px 0 16px;color:var(--muted)">💸 Comisiones</h3>
+      <div class="chart-card" style="margin-bottom:16px;border-left:3px solid var(--accent2)">
+        <h3 style="color:var(--accent2);margin-bottom:12px">Comisiones Balanz</h3>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th style="${thS}">Monto</th>
+            <th style="${thS}">Tipo</th>
+            <th style="${thS}">Descripción</th>
+            <th style="${thS}">Fecha</th>
+            <th></th>
+          </tr></thead>
+          <tbody>${comRows}</tbody>
+        </table>
+      </div>`;
+  }
+
   portfolio.innerHTML = html2 || '<div class="empty-state"><h3>Sin inversiones</h3></div>';
 
   // Auto-actualizar precios del mercado (BCBA) 2s después de renderizar
