@@ -2705,10 +2705,19 @@ function renderInversiones() {
   const makeCard = ({ activo, movs, totalComp, totalVent, compras, ventas }, isClosed) => {
     const neto = totalComp - totalVent;
     const color = ACTIVO_COLORS[activo] || '#6b7494';
-    // Price tracking: use latest precioCosto and precioActual
-    const lastPrecio = [...compras].reverse().find(m => m.precioCosto);
+    // Precio costo PROMEDIO PONDERADO: suma(monto) / suma(cantidad)
+    const comprasConPrecio = compras.filter(m => m.precioCosto && m.precioCosto > 0);
+    let precioCosto = null;
+    if (comprasConPrecio.length > 0) {
+      const totalMonto = comprasConPrecio.reduce((s,m) => s + m.monto, 0);
+      const totalUnidades = comprasConPrecio.reduce((s,m) => {
+        const cant = m.precioCosto > 0 ? m.monto / m.precioCosto : 0;
+        return s + cant;
+      }, 0);
+      precioCosto = totalUnidades > 0 ? Math.round(totalMonto / totalUnidades * 100) / 100 : null;
+    }
+    // Precio actual: el más reciente disponible
     const lastActual = [...movs].reverse().find(m => m.precioActual);
-    const precioCosto = lastPrecio?.precioCosto || null;
     const precioActual = lastActual?.precioActual || null;
     let marginHTML = '';
     if (precioCosto && precioActual) {
